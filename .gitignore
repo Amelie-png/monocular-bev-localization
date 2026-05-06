@@ -1,0 +1,14 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Data (critical)
+data/raw/
+data/processed/
+
+# Outputs
+outputs/
+
+# OS junk
+.DS_Store
