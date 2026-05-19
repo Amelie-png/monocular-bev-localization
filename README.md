@@ -10,6 +10,8 @@ This project explores monocular bird’s-eye-view (BEV) localization of players 
 
 ## Setup
 pip install -r requirements.txt
+source venv/bin/activate
+python -m scripts.file_name
 
 ## Status
 Week 1: Data pipeline setup
