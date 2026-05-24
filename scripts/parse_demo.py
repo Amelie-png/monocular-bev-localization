@@ -1,13 +1,13 @@
 from pathlib import Path
-import pandas as pd
-from src.data.demo_parser import parse_demo, get_round_info
+from src.data.demo_parser import parse_demo, generate_recording_plan
 
 demo_dir = Path("data/raw/demos")
 save_dir = Path("data/processed/player_positions")
 save_dir.mkdir(parents=True, exist_ok=True)
+plan_save_dir = Path("data/processed/recording_plans")
+plan_save_dir.mkdir(parents=True, exist_ok=True)
 
 for demo_path in demo_dir.glob("*.dem"):
-
   print(f"\n{'='*60}")
   print(f"Parsing {demo_path.name}")
   print(f"{'='*60}")
@@ -22,18 +22,11 @@ for demo_path in demo_dir.glob("*.dem"):
   df.to_parquet(output_file, index=False)
   print(f"Saved to: {output_file}")
 
-  rounds = sorted(df['round_number'].unique())
-  round_info_list = []
-  
-  for round_num in rounds:
-    info = get_round_info(df, round_num)
-    round_info_list.append(info)
-    print(f"  Round {round_num}: ticks {info['start_tick']}-{info['end_tick']} "
-      f"({info['duration_seconds']:.1f}s)"
-    )
-
-  round_info_df = pd.DataFrame(round_info_list)
-  info_file = save_dir / f"{demo_path.stem}_round_info.parquet"
-  round_info_df.to_parquet(info_file, index=False)
+  plan_df = generate_recording_plan(df)
+  output_plan = plan_save_dir / f"{demo_path.stem}_recording_plan.parquet"
+  plan_df.to_parquet(output_plan, index=False)
+  print(f"Saved to: {output_plan}")
+  print("\nRecording plan:")
+  print(plan_df[["round_number", "player_pov", "start_tick", "end_tick", "duration_seconds"]])
 
 print("\nDemo parsing complete!")
