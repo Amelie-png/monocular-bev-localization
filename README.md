@@ -10,8 +10,10 @@ This project explores monocular bird’s-eye-view (BEV) localization of players 
 
 ## Setup
 pip install -r requirements.txt
+pip freeze > requirements-lock.txt
 source venv/bin/activate
-python -m scripts.file_name
+python3 -m scripts.file_name
 
 ## Status
 Week 1: Data pipeline setup
+Week 2: Integrate YOLOv8 for detection
