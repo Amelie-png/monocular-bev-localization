@@ -51,19 +51,19 @@ def synchronize_round(frame_metadata_path, tick_data_path, round_config):
   ticks_df = pd.read_parquet(tick_data_path)
   
   sync = RoundSynchronizer(
-    video_start_time=round_config['video_start'],
-    video_end_time=round_config['video_end'],
-    tick_start=round_config['tick_start'],
-    tick_end=round_config['tick_end']
+    video_start_time=round_config["video_start"],
+    video_end_time=round_config["video_end"],
+    tick_start=round_config["tick_start"],
+    tick_end=round_config["tick_end"]
   )
   
-  frames_df['tick'] = frames_df['timestamp'].apply(sync.video_time_to_tick)
+  frames_df["tick"] = frames_df["timestamp"].apply(sync.video_time_to_tick)
   
   # For each frame, find nearest tick in demo data
   def get_nearest_tick_data(target_tick):
-    closest_idx = (ticks_df['tick'] - target_tick).abs().idxmin()
-    return ticks_df.loc[closest_idx, 'tick']
+    closest_idx = (ticks_df["tick"] - target_tick).abs().idxmin()
+    return ticks_df.loc[closest_idx, "tick"]
   
-  frames_df['matched_tick'] = frames_df['tick'].apply(get_nearest_tick_data)
+  frames_df["matched_tick"] = frames_df["tick"].apply(get_nearest_tick_data)
   
   return frames_df

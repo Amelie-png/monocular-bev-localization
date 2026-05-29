@@ -4,6 +4,7 @@ from src.data.video_parser import extract_frames
 
 video_dir = Path("data/raw/videos")
 output_dir = Path("data/processed/frames")
+output_dir.mkdir(parents=True, exist_ok=True)
 metadata_dir = Path("data/processed/frame_metadata")
 metadata_dir.mkdir(parents=True, exist_ok=True)
 
@@ -13,7 +14,7 @@ for video_path in sorted(video_dir.glob("*.mp4")):
   frame_metadata = extract_frames(
     video_path=video_path,
     output_dir=output_dir,
-    fps_override=None  # Set to 30 for 30fps, None for native
+    fps_override=5  # Set to 30 for 30fps, None for native
   )
   
   all_metadata.append(frame_metadata)
