@@ -2,7 +2,6 @@ from pathlib import Path
 import pandas as pd
 import cv2
 from tqdm import tqdm
-import json
 
 from src.detection.detector import PlayerDetector
 
@@ -14,14 +13,14 @@ output_dir.mkdir(parents=True, exist_ok=True)
 # Initialize detector
 print("Loading YOLOv8 model...")
 detector = PlayerDetector(
-  model_name='yolov8n.pt',
-  confidence_threshold=0.25
+  model_name="yolov8m.pt",
+  confidence_threshold=0.5
 )
 print("Model loaded")
 
 # Process each video's frames
 for metadata_file in frame_metadata_dir.glob("*_metadata.parquet"):
-  video_name = metadata_file.stem.replace('_metadata', '')
+  video_name = metadata_file.stem.replace("_metadata", "")
   print(f"\n{'='*60}")
   print(f"Processing: {video_name}")
   print(f"{'='*60}")
