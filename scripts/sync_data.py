@@ -4,56 +4,62 @@ from src.data.synchronizer import synchronize_round
 
 metadata_dir = Path("data/processed/frame_metadata")
 positions_dir = Path("data/processed/player_positions")
+round_info_dir = Path("data/processed/recording_plans")
 sync_dir = Path("data/processed/sync")
 sync_dir.mkdir(parents=True, exist_ok=True)
 
-# MANUAL CONFIGURATION
-round_configs = {
-  'match_1_round_1': {
-    'frame_metadata': 'match_1_round_1_metadata.parquet',
-    'position_data': 'match_1_positions.parquet',
-    'round_number': 0,  # 0-indexed
-    'video_start': 0.0,  # MANUALLY DETERMINED: when freeze ends in video
-    'video_end': 62.0,   # MANUALLY DETERMINED: when round ends in video
-    'tick_start': None,  # Will auto-fill from round_info
-    'tick_end': None     # Will auto-fill from round_info
-  },
-  'match_1_round_2': {
-    'frame_metadata': 'match_1_round_2_metadata.parquet',
-    'position_data': 'match_1_positions.parquet',
-    'round_number': 0,  # 0-indexed
-    'video_start': 0.0,  # MANUALLY DETERMINED: when freeze ends in video
-    'video_end': 62.0,   # MANUALLY DETERMINED: when round ends in video
-    'tick_start': None,  # Will auto-fill from round_info
-    'tick_end': None     # Will auto-fill from round_info
-  },
-  # Add more rounds here
-}
+# GLOBAL CONFIGS
+VIDEO_START_TIME = 3.0
 
-# Process each round
-for video_name, config in round_configs.items():
+for metadata_file in metadata_dir.glob("*_metadata.parquet"):
+  video_name = metadata_file.stem.replace("_metadata", "")
+
   print(f"\n{'='*60}")
   print(f"Synchronizing {video_name}")
   print(f"{'='*60}")
-  
-  frame_meta_path = metadata_dir / config['frame_metadata']
-  position_path = positions_dir / config['position_data']
-  
-  # Get tick range from round info if not manually specified
-  if config['tick_start'] is None:
-    round_info_path = positions_dir / config['position_data'].replace('_positions.parquet', '_round_info.parquet')
-    round_info = pd.read_parquet(round_info_path)
-    round_data = round_info[round_info['round_number'] == config['round_number']].iloc[0]
-    
-    config['tick_start'] = round_data['start_tick']
-    config['tick_end'] = round_data['end_tick']
-    
-    print(f"Auto-detected ticks: {config['tick_start']} - {config['tick_end']}")
+
+  # Parse video_name
+  parts = video_name.split("_")
+
+  match_name = "_".join(parts[:2])
+
+  round_number = int(parts[-1])
+
+  # Load metadata
+  frames_df = pd.read_parquet(metadata_file)
+  positions_file = positions_dir / f"{match_name}_positions.parquet"
+  round_info_file = round_info_dir / f"{match_name}_recording_plan.parquet"
+
+  round_info = pd.read_parquet(round_info_file)
+  round_data = round_info[round_info["round_number"] == round_number].iloc[0]
+
+  # Infer duration
+  video_end = frames_df["timestamp_seconds"].max()
+
+  config = {
+    'round_number': round_number,
+    'video_start': VIDEO_START_TIME,
+    'video_end': video_end,
+    'tick_start': int(round_data["start_tick"]),
+    'tick_end': int(round_data["end_tick"])
+  }
+
+  print(
+    f"Ticks: "
+    f"{config['tick_start']} - "
+    f"{config['tick_end']}"
+  )
+
+  print(
+    f"Video: "
+    f"{config['video_start']:.1f}s - "
+    f"{config['video_end']:.1f}s"
+  )
   
   # Synchronize
   sync_df = synchronize_round(
-    frame_metadata_path=frame_meta_path,
-    tick_data_path=position_path,
+    frame_metadata_path=metadata_file,
+    tick_data_path=positions_file,
     round_config=config
   )
   

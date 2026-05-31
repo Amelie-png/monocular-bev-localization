@@ -4,11 +4,12 @@ class PlayerDetector:
   """
   Abstraction for YOLOv8 for detecting players in CS2 frames.
   """
-  def __init__(self, model_name='yolov8n.pt', confidence_threshold=0.25, crop_bottom_ratio=0.15):
+  def __init__(self, model_name="yolov8n.pt", confidence_threshold=0.25, crop_bottom_ratio=0):
     """
     Args:
       model_name: YOLOv8 model variant (n/s/m/l/x)
       confidence_threshold: Minimum confidence for detections
+      crop_bottom_ratio: for adjusting detection area size
     """
     self.model = YOLO(model_name)
     self.conf_threshold = confidence_threshold
@@ -30,15 +31,15 @@ class PlayerDetector:
         confidence = float(box.conf[0])
 
         detections.append({
-          'bbox': {
-            'x1': float(x1),
-            'y1': float(y1),
-            'x2': float(x2),
-            'y2': float(y2)
+          "bbox": {
+            "x1": float(x1),
+            "y1": float(y1),
+            "x2": float(x2),
+            "y2": float(y2)
           },
-          'confidence': confidence,
-          'class_id': class_id,
-          'class_name': 'person'
+          "confidence": confidence,
+          "class_id": class_id,
+          "class_name": "person"
         })
 
     return detections
