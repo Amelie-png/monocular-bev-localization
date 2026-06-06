@@ -32,7 +32,7 @@ class DetectionVisualizer:
       y1 = int(bbox["y1"])
       x2 = int(bbox["x2"])
       y2 = int(bbox["y2"])
-      confidence = det['confidence']
+      confidence = det["confidence"]
       
       # Draw rectangle
       cv2.rectangle(annotated, (x1, y1), (x2, y2), self.color, self.thickness)
