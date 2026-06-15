@@ -35,11 +35,7 @@ class PlayerTracker:
     detection_list = []
 
     for detection in detections:
-      bbox = detection["bbox"]
-      x1 = float(bbox["x1"])
-      y1 = float(bbox["y1"])
-      x2 = float(bbox["x2"])
-      y2 = float(bbox["y2"])
+      x1, y1, x2, y2 = map(int, detection["bbox"])
       confidence = float(detection["confidence"])
 
       w = x2 - x1
