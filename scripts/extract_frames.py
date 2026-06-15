@@ -8,8 +8,6 @@ output_dir.mkdir(parents=True, exist_ok=True)
 metadata_dir = Path("data/processed/frame_metadata")
 metadata_dir.mkdir(parents=True, exist_ok=True)
 
-all_metadata = []
-
 for video_path in sorted(video_dir.glob("*.mp4")):
   frame_metadata = extract_frames(
     video_path=video_path,
@@ -17,15 +15,9 @@ for video_path in sorted(video_dir.glob("*.mp4")):
     fps_override=5  # Set to 30 for 30fps, None for native
   )
   
-  all_metadata.append(frame_metadata)
-  
   video_name = video_path.stem
   metadata_file = metadata_dir / f"{video_name}_metadata.parquet"
   frame_metadata.to_parquet(metadata_file, index=False)
   print(f"Saved metadata: {metadata_file}\n")
 
-if all_metadata:
-  combined_metadata = pd.concat(all_metadata, ignore_index=True)
-  combined_file = metadata_dir / "all_frames_metadata.parquet"
-  combined_metadata.to_parquet(combined_file, index=False)
-  print(f"All frames extracted! Combined metadata: {combined_file}")
+print(f"All frames extracted!")

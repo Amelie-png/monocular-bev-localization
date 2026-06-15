@@ -4,18 +4,28 @@ class PlayerDetector:
   """
   Abstraction for YOLOv8 for detecting players in CS2 frames.
   """
-  def __init__(self, model_name="yolov8n.pt", confidence_threshold=0.25, crop_bottom_ratio=0):
+  def __init__(self, model_name="yolov8m.pt", confidence_threshold=0.5, crop_bottom_ratio=0):
     """
     Args:
       model_name: YOLOv8 model variant (n/s/m/l/x)
       confidence_threshold: Minimum confidence for detections
-      crop_bottom_ratio: for adjusting detection area size
+      crop_bottom_ratio: Ratio of bottom to crop (0 = no crop)
     """
     self.model = YOLO(model_name)
     self.conf_threshold = confidence_threshold
     self.crop_bottom_ratio = crop_bottom_ratio
-
     self.person_class_id = 0
+
+  def _crop_image(self, image):
+    """
+    Helper function to crop image based on crop_bottom_ratio.
+    """
+    if self.crop_bottom_ratio == 0:
+      return image
+    
+    height = image.shape[0]
+    crop_height = int(height * (1 - self.crop_bottom_ratio))
+    return image[:crop_height, :]
 
   def _extract_boxes(self, result):
     """
@@ -27,16 +37,11 @@ class PlayerDetector:
       class_id = int(box.cls[0])
 
       if class_id == self.person_class_id:
-        x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
+        x1, y1, x2, y2 = box.xyxy[0].cpu().numpy().astype(float)
         confidence = float(box.conf[0])
 
         detections.append({
-          "bbox": {
-            "x1": float(x1),
-            "y1": float(y1),
-            "x2": float(x2),
-            "y2": float(y2)
-          },
+          "bbox": [x1, y1, x2, y2],
           "confidence": confidence,
           "class_id": class_id,
           "class_name": "person"
@@ -54,10 +59,7 @@ class PlayerDetector:
     Return:
       List of dicts with keys: bbox, confidence, class_id
     """
-    height, _ = image.shape[:2]
-    crop_height = int(height * (1 - self.crop_bottom_ratio))
-    cropped_image = image[:crop_height, :]
-
+    cropped_image = self._crop_image(image)
     results = self.model(cropped_image, conf=self.conf_threshold, verbose=False)
 
     return self._extract_boxes(results[0])
@@ -72,11 +74,7 @@ class PlayerDetector:
     Return:
       List of detection lists (one per image)
     """
-    height, _ = images[0].shape[:2]
-    crop_height = int(height * (1 - self.crop_bottom_ratio))
-    cropped_images = []
-    for image in images:
-      cropped_images.append(image[:crop_height, :])
+    cropped_images = [self._crop_image(img) for img in images]
     results = self.model(cropped_images, conf=self.conf_threshold, verbose=False)
 
     return [self._extract_boxes(result) for result in results]

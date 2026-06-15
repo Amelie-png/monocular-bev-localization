@@ -27,23 +27,19 @@ class DetectionVisualizer:
     annotated = image.copy()
     
     for det in detections:
-      bbox = det["bbox"]
-      x1 = int(bbox["x1"])
-      y1 = int(bbox["y1"])
-      x2 = int(bbox["x2"])
-      y2 = int(bbox["y2"])
+      x1, y1, x2, y2 = det["bbox"]
       confidence = det["confidence"]
       
       # Draw rectangle
       cv2.rectangle(annotated, (x1, y1), (x2, y2), self.color, self.thickness)
-      
-      track_text=""
 
+      label = f"{det['class_name']} {confidence:.2f}"
       if "track_id" in det:
-        track_text=f" ID:{det['track_id']}"
-
-      # Draw label with confidence
-      label = f"{det['class_name']}: {track_text} {confidence:.2f}"
+        label = (
+          f"{det['class_name']} "
+          f"ID:{det['track_id']} "
+          f"{confidence:.2f}"
+        )
       label_size, _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
       
       # Background for text
@@ -79,7 +75,11 @@ class DetectionVisualizer:
       fps: Frame rate
     """
     # Read first frame to get dimensions
+    if len(frame_paths) == 0:
+      return
     first_frame = cv2.imread(str(frame_paths[0]))
+    if first_frame is None:
+      raise ValueError(f"Could not load first frame: {frame_paths[0]}")
     height, width = first_frame.shape[:2]
     
     # Create video writer
