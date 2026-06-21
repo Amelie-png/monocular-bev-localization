@@ -6,8 +6,8 @@ class DetectionConfig:
   """
   Config for detection pipeline.
   """
-  model_name: str = "yolov8m.pt"
-  confidence_threshold: float = 0.5
+  model_name: str = "yolo26m.pt"
+  confidence_threshold: float = 0.55
   crop_bottom_ratio: float = 0.0
   batch_size: int = 8
   device: str = None

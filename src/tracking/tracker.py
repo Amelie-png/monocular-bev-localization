@@ -5,17 +5,15 @@ class PlayerTracker:
   Multi-object tracker using DeepSORT
   Assigns persistent IDs to detections across frames.
   """
-  def __init__(self, max_age=30, n_init=3, nn_budget=100):
+  def __init__(self, config):
     """
     Args:
-      max_age: How many frames to keep a track if no detection matches
-      n_init: Need N detections before confirming a track is real
-      nn_budget: Memory budget for appearance features
+      config: TrackConfig object
     """
-    self.max_age = max_age
-    self.n_init = n_init
-    self.nn_budget = nn_budget
-    self.tracker = DeepSort(embedder='mobilenet', max_age=max_age, n_init=n_init, nn_budget=nn_budget)
+    self.max_age = config.max_age
+    self.n_init = config.n_init
+    self.nn_budget = config.nn_budget
+    self.tracker = DeepSort(embedder='mobilenet', max_age=self.max_age, n_init=self.n_init, nn_budget=self.nn_budget)
     self.frame_count = 0
 
   def update(self, frame, detections):
@@ -51,7 +49,7 @@ class PlayerTracker:
       if not track.is_confirmed():
         continue
 
-      track_id = track.track_id
+      track_id = int(track.track_id)
       lrtb = track.to_ltrb()
 
       tracked_detections.append({

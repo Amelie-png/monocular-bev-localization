@@ -27,7 +27,7 @@ class DetectionVisualizer:
     annotated = image.copy()
     
     for det in detections:
-      x1, y1, x2, y2 = det["bbox"]
+      x1, y1, x2, y2 = map(int, det["bbox"])
       confidence = det["confidence"]
       
       # Draw rectangle
