@@ -1,4 +1,4 @@
 from .tracker import PlayerTracker
-from .visualizer import TrackingVisualizer
+from .config import TrackConfig
 
-__all__ = ['PlayerTracker', 'TrackingVisualizer']
+__all__ = ['PlayerTracker', 'TrackConfig']

@@ -113,6 +113,9 @@ if __name__ == "__main__":
   parser.add_argument("--split", type=str, default="data/splits/train.txt", help="Split file")
   parser.add_argument("--videos", type=str, nargs="+", default=None, help="Specific videos to evaluate")
   parser.add_argument("--no-video", action="store_true", help="Skip video creation")
+  parser.add_argument("--detections-dir", type=str, default="data/processed/detections")
+  parser.add_argument("--output-dir", type=str, default="outputs/detection_videos")
+  parser.add_argument("--metrics-dir", type=str, default="outputs/detection_metrics")
   
   args = parser.parse_args()
 
@@ -124,5 +127,8 @@ if __name__ == "__main__":
   evaluate_detections(
     video_names=video_names,
     output_video=not args.no_video,
+    detections_dir=Path(args.detections_dir),
+    output_dir=Path(args.output_dir),
+    metrics_dir=Path(args.metrics_dir),
   )
   

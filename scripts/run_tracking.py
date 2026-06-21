@@ -1,95 +1,152 @@
 from pathlib import Path
 import pandas as pd
 import cv2
+import yaml
 from tqdm import tqdm
 
-from src.detection.detector import PlayerDetector
-from src.tracking.tracker import PlayerTracker
-from src.tracking.visualizer import TrackingVisualizer
+from src.tracking import PlayerTracker, TrackConfig
 
-# Paths
-frame_metadata_dir = Path("data/processed/frame_metadata")
-output_dir = Path("data/processed/tracking")
-output_dir.mkdir(parents=True, exist_ok=True)
+def load_config(config_path=None):
+  """
+  Use configs from YAML files or use defaults.
+  """
+  if config_path and Path(config_path).exists():
+    with open(config_path) as f:
+      config_dict = yaml.safe_load(f)
+    return TrackConfig(**config_dict)
+  return TrackConfig()
 
-# Initialize models
-print("Loading YOLOv8 detector...")
-detector = PlayerDetector(model_name='yolov8m.pt', confidence_threshold=0.5)
+def tracks_to_visualization_format(tracks):
+  detections = []
 
-print("Initializing DeepSORT tracker...")
-tracker = PlayerTracker(max_age=30, n_init=3, nn_budget=100)
-
-visualizer = TrackingVisualizer()
-
-# Process each video
-for metadata_file in frame_metadata_dir.glob("*_metadata.parquet"):
-  video_name = metadata_file.stem.replace('_metadata', '')
-  print(f"\n{'='*60}")
-  print(f"Processing: {video_name}")
-  print(f"{'='*60}")
-  
-  # Load frame metadata
-  frames_df = pd.read_parquet(metadata_file)
-  
-  # Reset tracker for new video
-  tracker.reset()
-  
-  all_tracks = []
-  frame_list = []
-  
-  # Process each frame
-  for idx, row in tqdm(frames_df.iterrows(), total=len(frames_df), desc="Tracking"):
-    frame_path = row['frame_path']
-    frame_id = row['frame_id']
-    
-    # Load image
-    image = cv2.imread(frame_path)
-    if image is None:
-      print(f"Could not load {frame_path}")
-      continue
-    
-    # Detect with YOLOv8
-    detections = detector.detect(image)
-    
-    # Track with DeepSORT
-    tracked = tracker.update(frame=image, detections=detections)
-    
-    # Store results
-    all_tracks.append({
-      'frame_id': frame_id,
-      'frame_path': frame_path,
-      'timestamp': row['timestamp'],
-      'num_tracks': len(tracked),
-      'tracks': tracked
+  for track in tracks:
+    detections.append({
+      "bbox": track["bbox"],
+      "confidence": track["confidence"],
+      "class_name": "person",
+      "track_id": track["track_id"]
     })
+
+  return detections
+
+def run_tracking(config, output_dir=Path("data/processed/trackings"), video_names=None):
+  # Paths
+  detections_dir = Path("data/processed/detections")
+
+  # Initialize model
+  print("Initializing DeepSORT tracker...")
+  tracker = PlayerTracker(max_age=config.max_age, n_init=config.n_init, nn_budget=config.nn_budget)
+
+  # Process each detection file
+  for detection_file in detections_dir.glob("*_detections.parquet"):
+    video_name = detection_file.stem.replace('_detections', '')
+    print(f"\n{'='*60}")
+    print(f"Processing: {video_name}")
+    print(f"{'='*60}")
     
-    frame_list.append(frame_path)
-  
-  # Save tracking results
-  tracks_df = pd.DataFrame(all_tracks)
-  if tracks_df.empty:
-    print("No tracks found.")
-    continue
-  output_file = output_dir / f"{video_name}_tracking.parquet"
-  tracks_df.to_parquet(output_file, index=False)
-  
-  print(f"Saved tracks to: {output_file}")
+    # Load detection data
+    detection_df = pd.read_parquet(detection_file)
 
-  # Print statistics
-  total_frames = len(all_tracks)
-  frames_with_tracks = sum(1 for t in all_tracks if t['num_tracks'] > 0)
-  total_track_instances = sum(t['num_tracks'] for t in all_tracks)
-  unique_track_ids = set()
-  
-  for t in all_tracks:
-    for track in t['tracks']:
-      unique_track_ids.add(track['track_id'])
-  
-  print(f"\nTracking Statistics:")
-  print(f"  Total frames: {total_frames}")
-  print(f"  Frames with tracks: {frames_with_tracks} ({frames_with_tracks/total_frames*100:.1f}%)")
-  print(f"  Total track detections: {total_track_instances}")
-  print(f"  Unique track IDs: {len(unique_track_ids)}")
-  print(f"  Avg tracks per frame: {total_track_instances/total_frames:.2f}")
+    # Process each frame
+    for frame_id in sorted(detection_df["frame_id"].unique()):
+      frame_rows = detection_df[detection_df["frame_id"] == frame_id]
 
-print("\nAll tracking complete!")
+      frame_path = frame_rows.iloc[0]["frame_path"]
+
+      # Load image
+      image = cv2.imread(frame_path)
+      if image is None:
+        print(f"Could not load {frame_path}")
+        continue
+
+      detections = []
+      all_tracks = []
+
+      for _, row in frame_rows.iterrows():
+        detections.append({
+          "bbox": [
+            row["x1"],
+            row["y1"],
+            row["x2"],
+            row["y2"]
+          ],
+          "confidence": row["confidence"]
+        })
+
+      # Track with DeepSORT
+      tracks = tracker.update(frame=image, detections=detections)
+
+      # Store results
+      for track in tracks:
+        all_tracks.append({
+          "frame_id": frame_id,
+          "frame_path": frame_path,
+
+          "track_id": track["track_id"],
+
+          "x1": track["bbox"][0],
+          "y1": track["bbox"][1],
+          "x2": track["bbox"][2],
+          "y2": track["bbox"][3],
+
+          "confidence": track["confidence"]
+        })
+    
+    # Reset tracker for new video
+    tracker.reset()
+    
+    # Save tracking results
+    tracks_df = pd.DataFrame(all_tracks)
+    if tracks_df.empty:
+      print("No tracks found.")
+      continue
+    output_file = output_dir / f"{video_name}_trackings.parquet"
+    tracks_df.to_parquet(output_file, index=False)
+    
+    print(f"Saved tracks to: {output_file}")
+
+    # Print statistics
+    total_frames = len(all_tracks)
+    tracks_df = pd.DataFrame(all_tracks)
+    unique_track_ids = tracks_df["track_id"].nunique()
+    total_track_instances = len(tracks_df)
+    frames_with_tracks = tracks_df["frame_id"].nunique()
+    
+    print(f"\nTracking Statistics:")
+    print(f"  Total frames: {total_frames}")
+    print(f"  Frames with tracks: {frames_with_tracks} ({frames_with_tracks/total_frames*100:.1f}%)")
+    print(f"  Total track detections: {total_track_instances}")
+    print(f"  Unique track IDs: {len(unique_track_ids)}")
+    print(f"  Avg tracks per frame: {total_track_instances/total_frames:.2f}")
+
+  print("\nAll tracking complete!")
+
+if __name__ == "__main__":
+  import argparse
+
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--config", type=str, default=None, help="Path to config YAML")
+  parser.add_argument("--max-age", type=str, default=None, help="Max age")
+  parser.add_argument("--n-init", type=float, default=None, help="N init")
+  parser.add_argument("--nn-budget", type=float, default=None, help="NN budget")
+  parser.add_argument("--video", type=str, nargs="+", default=None, help="Specific videos to process")
+  
+  args = parser.parse_args()
+
+  if args.config:
+    config = load_config(args.config)
+    # Override with command line args if provided
+    if args.max_age is not None:
+      config.max_age = args.max_age
+    if args.n_init is not None:
+      config.n_init = args.n_init
+    if args.nn_budget is not None:
+      config.nn_budget = args.nn_budget
+  else:
+    config = TrackConfig(
+      max_age=args.max_age,
+      n_init=args.n_init,
+      nn_budget=args.nn_budget,
+    )
+  
+  run_tracking(config, video_names=args.video)

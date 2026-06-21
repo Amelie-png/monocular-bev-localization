@@ -27,6 +27,8 @@ def run_detection(config, output_dir=Path("data/processed/detections"), video_na
   # Paths
   frame_metadata_dir = Path("data/processed/frame_metadata")
 
+  output_dir.mkdir(parents=True, exist_ok=True)
+
   # Initialize detector
   print(f"Loading YOLOv8 model: {config.model_name}")
   print(f"Config: {config.to_dict()}")
@@ -126,26 +128,25 @@ if __name__ == "__main__":
   parser.add_argument("--crop", type=float, default=None, help="Crop bottom ratio")
   parser.add_argument("--batch-size", type=int, default=None, help="Batch size")
   parser.add_argument("--video", type=str, nargs="+", default=None, help="Specific videos to process")
+  parser.add_argument("--output", type=str, default=None, help="Path to output directory")
   
   args = parser.parse_args()
 
   if args.config:
     config = load_config(args.config)
-    # Override with command line args if provided
-    if args.model is not None:
-      config.model_name = args.model
-    if args.confidence is not None:
-      config.confidence_threshold = args.confidence
-    if args.crop is not None:
-      config.crop_bottom_ratio = args.crop
-    if args.batch_size is not None:
-      config.batch_size = args.batch_size
   else:
-    config = DetectionConfig(
-      model_name=args.model,
-      confidence_threshold=args.confidence,
-      crop_bottom_ratio=args.crop,
-      batch_size=args.batch_size
-    )
+    config = DetectionConfig()
   
-  run_detection(config, video_names=args.video)
+  # Override with command line args if provided
+  if args.model is not None:
+    config.model_name = args.model
+  if args.confidence is not None:
+    config.confidence_threshold = args.confidence
+  if args.crop is not None:
+    config.crop_bottom_ratio = args.crop
+  if args.batch_size is not None:
+    config.batch_size = args.batch_size
+
+  output_dir = Path(args.output) if args.output else Path("data/processed/detections")
+  
+  run_detection(config, output_dir=output_dir, video_names=args.video)

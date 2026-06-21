@@ -4,10 +4,10 @@ class PlayerDetector:
   """
   Abstraction for YOLOv8 for detecting players in CS2 frames.
   """
-  def __init__(self, model_name="yolov8m.pt", confidence_threshold=0.5, crop_bottom_ratio=0):
+  def __init__(self, model_name="yolo26m.pt", confidence_threshold=0.55, crop_bottom_ratio=0):
     """
     Args:
-      model_name: YOLOv8 model variant (n/s/m/l/x)
+      model_name: YOLO26 model variant (n/s/m/l/x)
       confidence_threshold: Minimum confidence for detections
       crop_bottom_ratio: Ratio of bottom to crop (0 = no crop)
     """
