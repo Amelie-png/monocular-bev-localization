@@ -1,0 +1,4 @@
+batch_size: 8
+confidence_threshold: 0.55
+crop_bottom_ratio: 0.0
+model_name: yolo26m.pt
