@@ -16,29 +16,24 @@ def load_config(config_path=None):
     return TrackConfig(**config_dict)
   return TrackConfig()
 
-def tracks_to_visualization_format(tracks):
-  detections = []
-
-  for track in tracks:
-    detections.append({
-      "bbox": track["bbox"],
-      "confidence": track["confidence"],
-      "class_name": "person",
-      "track_id": track["track_id"]
-    })
-
-  return detections
-
 def run_tracking(config, output_dir=Path("data/processed/trackings"), video_names=None):
   # Paths
   detections_dir = Path("data/processed/detections")
 
+  output_dir.mkdir(parents=True, exist_ok=True)
+
   # Initialize model
   print("Initializing DeepSORT tracker...")
-  tracker = PlayerTracker(max_age=config.max_age, n_init=config.n_init, nn_budget=config.nn_budget)
+  print(f"Config: {config.to_dict()}")
+  tracker = PlayerTracker(config)
+  print("Tracker loaded")
+
+  detection_files = list(detections_dir.glob("*_detections.parquet"))
+  if video_names:
+    detection_files = [f for f in detection_files if f.stem.replace("_detections", "") in video_names]
 
   # Process each detection file
-  for detection_file in detections_dir.glob("*_detections.parquet"):
+  for detection_file in detection_files:
     video_name = detection_file.stem.replace('_detections', '')
     print(f"\n{'='*60}")
     print(f"Processing: {video_name}")
@@ -46,6 +41,8 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
     
     # Load detection data
     detection_df = pd.read_parquet(detection_file)
+
+    all_tracks = []
 
     # Process each frame
     for frame_id in sorted(detection_df["frame_id"].unique()):
@@ -60,7 +57,6 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
         continue
 
       detections = []
-      all_tracks = []
 
       for _, row in frame_rows.iterrows():
         detections.append({
@@ -106,7 +102,7 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
     print(f"Saved tracks to: {output_file}")
 
     # Print statistics
-    total_frames = len(all_tracks)
+    total_frames = detection_df["frame_id"].nunique()
     tracks_df = pd.DataFrame(all_tracks)
     unique_track_ids = tracks_df["track_id"].nunique()
     total_track_instances = len(tracks_df)
@@ -116,7 +112,7 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
     print(f"  Total frames: {total_frames}")
     print(f"  Frames with tracks: {frames_with_tracks} ({frames_with_tracks/total_frames*100:.1f}%)")
     print(f"  Total track detections: {total_track_instances}")
-    print(f"  Unique track IDs: {len(unique_track_ids)}")
+    print(f"  Unique track IDs: {unique_track_ids}")
     print(f"  Avg tracks per frame: {total_track_instances/total_frames:.2f}")
 
   print("\nAll tracking complete!")
@@ -130,23 +126,23 @@ if __name__ == "__main__":
   parser.add_argument("--n-init", type=float, default=None, help="N init")
   parser.add_argument("--nn-budget", type=float, default=None, help="NN budget")
   parser.add_argument("--video", type=str, nargs="+", default=None, help="Specific videos to process")
+  parser.add_argument("--output", type=str, default=None, help="Path to output directory")
   
   args = parser.parse_args()
 
   if args.config:
     config = load_config(args.config)
-    # Override with command line args if provided
-    if args.max_age is not None:
-      config.max_age = args.max_age
-    if args.n_init is not None:
-      config.n_init = args.n_init
-    if args.nn_budget is not None:
-      config.nn_budget = args.nn_budget
   else:
-    config = TrackConfig(
-      max_age=args.max_age,
-      n_init=args.n_init,
-      nn_budget=args.nn_budget,
-    )
+    config = TrackConfig()
+
+  # Override with command line args if provided
+  if args.max_age is not None:
+    config.max_age = args.max_age
+  if args.n_init is not None:
+    config.n_init = args.n_init
+  if args.nn_budget is not None:
+    config.nn_budget = args.nn_budget
+
+  output_dir = Path(args.output) if args.output else Path("data/processed/trackings")
   
-  run_tracking(config, video_names=args.video)
+  run_tracking(config, output_dir=output_dir, video_names=args.video)
