@@ -111,7 +111,7 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
     print(f"\nTracking Statistics:")
     print(f"  Total frames: {total_frames}")
     print(f"  Frames with tracks: {frames_with_tracks} ({frames_with_tracks/total_frames*100:.1f}%)")
-    print(f"  Total track detections: {total_track_instances}")
+    print(f"  Total tracks: {total_track_instances}")
     print(f"  Unique track IDs: {unique_track_ids}")
     print(f"  Avg tracks per frame: {total_track_instances/total_frames:.2f}")
 
