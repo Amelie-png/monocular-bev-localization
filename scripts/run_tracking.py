@@ -2,9 +2,8 @@ from pathlib import Path
 import pandas as pd
 import cv2
 import yaml
-from tqdm import tqdm
 
-from src.tracking import PlayerTracker, TrackConfig
+from src.tracking import PlayerTracker, ByteTrackConfig
 
 def load_config(config_path=None):
   """
@@ -13,8 +12,8 @@ def load_config(config_path=None):
   if config_path and Path(config_path).exists():
     with open(config_path) as f:
       config_dict = yaml.safe_load(f)
-    return TrackConfig(**config_dict)
-  return TrackConfig()
+    return ByteTrackConfig(**config_dict)
+  return ByteTrackConfig()
 
 def run_tracking(config, output_dir=Path("data/processed/trackings"), video_names=None):
   # Paths
@@ -23,7 +22,7 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
   output_dir.mkdir(parents=True, exist_ok=True)
 
   # Initialize model
-  print("Initializing DeepSORT tracker...")
+  print("Initializing ByteTracker...")
   print(f"Config: {config.to_dict()}")
   tracker = PlayerTracker(config)
   print("Tracker loaded")
@@ -69,8 +68,8 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
           "confidence": row["confidence"]
         })
 
-      # Track with DeepSORT
-      tracks = tracker.update(frame=image, detections=detections)
+      # Track with ByteTrack
+      tracks = tracker.update(detections=detections)
 
       # Store results
       for track in tracks:
@@ -122,26 +121,26 @@ if __name__ == "__main__":
 
   parser = argparse.ArgumentParser()
   parser.add_argument("--config", type=str, default=None, help="Path to config YAML")
-  parser.add_argument("--max-age", type=str, default=None, help="Max age")
-  parser.add_argument("--n-init", type=float, default=None, help="N init")
-  parser.add_argument("--nn-budget", type=float, default=None, help="NN budget")
+  parser.add_argument("--activation", type=float, default=None, help="track activation threshold")
+  parser.add_argument("--lost_buffer", type=int, default=None, help="lost track buffer")
+  parser.add_argument("--consecutive", type=float, default=None, help="minimum consecutive frames")
   parser.add_argument("--video", type=str, nargs="+", default=None, help="Specific videos to process")
   parser.add_argument("--output", type=str, default=None, help="Path to output directory")
-  
+
   args = parser.parse_args()
 
   if args.config:
     config = load_config(args.config)
   else:
-    config = TrackConfig()
+    config = ByteTrackConfig()
 
   # Override with command line args if provided
-  if args.max_age is not None:
-    config.max_age = args.max_age
-  if args.n_init is not None:
-    config.n_init = args.n_init
-  if args.nn_budget is not None:
-    config.nn_budget = args.nn_budget
+  if args.activation is not None:
+    config.activation = args.activation
+  if args.lost_buffer is not None:
+    config.lost_buffer = args.lost_buffer
+  if args.consecutive is not None:
+    config.consecutive = args.consecutive
 
   output_dir = Path(args.output) if args.output else Path("data/processed/trackings")
   
