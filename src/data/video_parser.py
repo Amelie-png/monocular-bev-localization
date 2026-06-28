@@ -36,8 +36,10 @@ def extract_frames(video_path, output_dir, fps_override=None):
   print(f"  Native FPS: {native_fps:.2f}")
   print(f"  Total frames: {total_frames}")
 
-  target_fps = fps_override if fps_override else native_fps
-  frame_interval = int(native_fps / target_fps) if fps_override else 1
+  target_fps = fps_override if fps_override is not None else native_fps
+
+  sample_interval = 1.0 / target_fps
+  next_sample_time = 0.0
 
   actual_frame_count = 0
 
@@ -47,9 +49,8 @@ def extract_frames(video_path, output_dir, fps_override=None):
     if not success:
       break
 
-    if frame_id % frame_interval == 0:
-      timestamp = frame_id / native_fps
-      
+    timestamp = frame_id / native_fps
+    if timestamp >= next_sample_time:
       frame_filename = f"frame_{actual_frame_count:06d}.png"
       frame_path = frame_dir / frame_filename
       
@@ -65,6 +66,7 @@ def extract_frames(video_path, output_dir, fps_override=None):
       })
       
       actual_frame_count += 1
+      next_sample_time += sample_interval
     
     frame_id += 1
 
