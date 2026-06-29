@@ -1,5 +1,4 @@
 from pathlib import Path
-import pandas as pd
 from src.data.video_parser import extract_frames
 
 video_dir = Path("data/raw/videos")
@@ -12,7 +11,7 @@ for video_path in sorted(video_dir.glob("*.mp4")):
   frame_metadata = extract_frames(
     video_path=video_path,
     output_dir=output_dir,
-    fps_override=5  # Set to 30 for 30fps, None for native
+    fps_override=30  # Set to 30 for 30fps, None for native
   )
   
   video_name = video_path.stem

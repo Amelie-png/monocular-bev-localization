@@ -31,5 +31,14 @@ If needed:
 - tune_detection: Run detection with different configuration of model and parameter
 - Manually inspect tuning_summary.csv and select few configs with best metrics
 - evaluate_detection: Evaluate detection and produce visualization with given config
-- Manually inspect output visualization video and select congif with best results
+- Manually inspect output visualization video and select config with best results
 - Evaluate detection on validation dataset
+- run_detection: Produce detection files for next steps in pipeline
+
+### Tracking
+- tune_tracking: Run tracking with different configuration of parameter
+- Manually inspect tuning_summary.csv and select few configs with best metrics
+- evaluate_tracking: Evaluate tracking and produce visualization with given config
+- Manually inspect output visualization video and select config with best results
+- Evaluate tracking on validation dataset
+- run_tracking: Produce tracking files for next steps in pipeline
