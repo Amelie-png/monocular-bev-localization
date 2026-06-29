@@ -1,15 +1,15 @@
 from pathlib import Path
 from scripts.evaluate_tracking import load_split_file, evaluate_trackings
 from scripts.run_tracking import run_tracking
-from src.tracking import TrackConfig
+from src.tracking import ByteTrackConfig
 import yaml
 import pandas as pd
 
-MAX_AGES = [15, 30, 60]
+ACTIVATION = [0.25, 0.45, 0.65]
 
-N_INITS = [2, 3, 5]
+LOST_BUFFER = [30, 60]
 
-NN_BUDGET = [100]
+CONSECUTIVE = [2]
 
 TUNE_ROOT = Path("outputs/tuning/tracking")
 TUNE_ROOT.mkdir(parents=True, exist_ok=True)
@@ -18,13 +18,13 @@ train_videos = load_split_file("data/splits/train.txt")
 
 results = []
 
-for age in MAX_AGES:
-  for n_init in N_INITS:
-    for budget in NN_BUDGET:
+for activation in ACTIVATION:
+  for lost_buffer in LOST_BUFFER:
+    for consecutive in CONSECUTIVE:
       experiment_name = (
-        f"max_age{age}_"
-        f"n_init{n_init}_"
-        f"nn_budget{budget}"
+        f"activation{activation}_"
+        f"lost_buffer{lost_buffer}_"
+        f"consecutive{consecutive}"
       )
 
       experiment_root = TUNE_ROOT / experiment_name
@@ -34,10 +34,10 @@ for age in MAX_AGES:
       tracking_output_dir.mkdir(parents=True, exist_ok=True)
       metrics_output_dir.mkdir(parents=True, exist_ok=True)
 
-      config = TrackConfig(
-        max_age=age,
-        n_init=n_init,
-        nn_budget=budget
+      config = ByteTrackConfig(
+        track_activation_threshold=activation,
+        lost_track_buffer=lost_buffer,
+        minimum_consecutive_frames=consecutive
       )
       with open(experiment_root / "config.yaml", "w") as f:
         yaml.dump(config.to_dict(), f)
@@ -58,9 +58,9 @@ for age in MAX_AGES:
       if not metrics_df.empty:
         results.append({
           "experiment": experiment_name,
-          "max_age": age,
-          "n_init": n_init,
-          "nn_budget": budget,
+          'track_activation_threshold': activation,
+          'lost_track_buffer': lost_buffer,
+          'minimum_consecutive_frames': consecutive,
           "total_frames": metrics_df["total_frames"].sum(),
           "total_tracks": metrics_df["total_tracks"].sum(),
           "frames_with_tracks": metrics_df["frames_with_tracks"].sum(),

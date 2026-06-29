@@ -8,3 +8,5 @@ torchvision
 tqdm
 ultralytics
 deep-sort-realtime
+supervision
+trackers
