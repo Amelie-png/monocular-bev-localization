@@ -1,0 +1,3 @@
+track_activation_threshold: 0.25
+lost_track_buffer: 30
+minimum_consecutive_frames: 2

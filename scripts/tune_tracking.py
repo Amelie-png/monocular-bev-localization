@@ -7,9 +7,9 @@ import pandas as pd
 
 ACTIVATION = [0.25, 0.45, 0.65]
 
-LOST_BUFFER = [30, 60, 90]
+LOST_BUFFER = [30, 60]
 
-CONSECUTIVE = [1, 2, 3]
+CONSECUTIVE = [2]
 
 TUNE_ROOT = Path("outputs/tuning/tracking")
 TUNE_ROOT.mkdir(parents=True, exist_ok=True)
