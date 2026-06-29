@@ -21,7 +21,7 @@ class DetectionVisualizer:
       image: numpy array (BGR)
       detections: List of detection dicts from PlayerDetector
     
-    Returns:
+    Return:
       Annotated image (new copy)
     """
     annotated = image.copy()
