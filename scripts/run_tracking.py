@@ -123,7 +123,7 @@ if __name__ == "__main__":
   parser.add_argument("--config", type=str, default=None, help="Path to config YAML")
   parser.add_argument("--activation", type=float, default=None, help="track activation threshold")
   parser.add_argument("--lost_buffer", type=int, default=None, help="lost track buffer")
-  parser.add_argument("--consecutive", type=float, default=None, help="minimum consecutive frames")
+  parser.add_argument("--consecutive", type=int, default=None, help="minimum consecutive frames")
   parser.add_argument("--video", type=str, nargs="+", default=None, help="Specific videos to process")
   parser.add_argument("--output", type=str, default=None, help="Path to output directory")
 
