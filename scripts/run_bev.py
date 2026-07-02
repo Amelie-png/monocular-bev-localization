@@ -1,15 +1,16 @@
 from pathlib import Path
 import pandas as pd
+import numpy as np
 
-from src.bev import HeuristicBEVEstimator, BevVisualizer, BevConfig
+from src.bev import BEVEstimator, BevVisualizer, BevConfig
 
-def run_heuristic_bev(output_dir=Path("data/processed/bev/heuristic"), video_names=None):
+def run_bev(output_dir=Path("data/processed/bev/heuristic"), video_names=None, midas=False):
   # Paths
   tracking_dir = Path("data/processed/trackings")
 
   output_dir.mkdir(parents=True, exist_ok=True)
 
-  estimator = HeuristicBEVEstimator()
+  estimator = BEVEstimator() # pass in image width when using map as background
 
   tracking_files = list(tracking_dir.glob("*_trackings.parquet"))
   if video_names:
@@ -21,6 +22,8 @@ def run_heuristic_bev(output_dir=Path("data/processed/bev/heuristic"), video_nam
     print(f"\n{'='*60}")
     print(f"Processing: {video_name}")
     print(f"{'='*60}")
+
+    depth_dir = Path("outputs/depths") / video_name # TODO Modify later
     
     # Load tracking data
     tracking_df = pd.read_parquet(tracking_file)
@@ -31,11 +34,18 @@ def run_heuristic_bev(output_dir=Path("data/processed/bev/heuristic"), video_nam
     for frame_id in sorted(tracking_df["frame_id"].unique()):
       frame_rows = tracking_df[tracking_df["frame_id"] == frame_id]
 
+      if midas:
+        depth_map = np.load(depth_dir / f"frame_{frame_id:06d}.npy")
+
       for _, row in frame_rows.iterrows():
         bbox = [row["x1"], row["y1"], row["x2"], row["y2"]]
-        bev = estimator.estimate(bbox)
+        if midas:
+          bev = estimator.estimate(bbox, depth_map=depth_map)
+        else:
+          bev = estimator.estimate(bbox)
         all_estimations.append({
           "frame_id": frame_id,
+          "frame_path": row["frame_path"],
           "track_id": row["track_id"],
           "bev_x": bev["bev_x"],
           "bev_y": bev["bev_y"],
@@ -71,6 +81,9 @@ def run_heuristic_bev(output_dir=Path("data/processed/bev/heuristic"), video_nam
 
     visualizer = BevVisualizer(scale=3)
 
+    if midas:
+      visualizer = BevVisualizer()
+
     frame_estimations = []
 
     for frame_id in sorted(estimation_df["frame_id"].unique()):
@@ -87,16 +100,16 @@ def run_heuristic_bev(output_dir=Path("data/processed/bev/heuristic"), video_nam
 
       frame_estimations.append(estimations)
 
-      video_file = (
-        output_dir /
-        f"{video_name}_bev.mp4"
-      )
+    video_file = (
+      output_dir /
+      f"{video_name}_bev.mp4"
+    )
 
-      visualizer.create_bev_video(
-        frame_estimations,
-        video_file,
-        fps=30
-      )
+    visualizer.create_bev_video(
+      frame_estimations,
+      video_file,
+      fps=30
+    )
 
   print("\nAll estimations complete!")
 
@@ -105,7 +118,7 @@ if __name__ == "__main__":
 
   parser = argparse.ArgumentParser()
   parser.add_argument("--config", type=str, default=None, help="Path to config YAML")
-  parser.add_argument("--max-age", type=str, default=None, help="Max age")
+  parser.add_argument("--midas", action="store_true", default=None, help="Use MiDaS depth")
   parser.add_argument("--n-init", type=float, default=None, help="N init")
   parser.add_argument("--nn-budget", type=float, default=None, help="NN budget")
   parser.add_argument("--video", type=str, nargs="+", default=None, help="Specific videos to process")
@@ -128,6 +141,11 @@ if __name__ == "__main__":
     config.nn_budget = args.nn_budget
   """
 
-  output_dir = Path(args.output) if args.output else Path("data/processed/bev/heuristic")
+  if args.output:
+    output_dir = Path(args.output)
+  elif args.midas:
+    output_dir = Path("data/processed/bev/midas")
+  else:
+    output_dir = Path("data/processed/bev/heuristic")
   
-  run_heuristic_bev(output_dir=output_dir, video_names=args.video)
+  run_bev(output_dir=output_dir, video_names=args.video, midas=args.midas)
