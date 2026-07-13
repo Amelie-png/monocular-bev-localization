@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from src.utils.device import detect_available_device
+from src.utils import detect_available_device
+from typing import Optional
 
 @dataclass
 class DetectionConfig:
@@ -10,7 +11,7 @@ class DetectionConfig:
   confidence_threshold: float = 0.55
   crop_bottom_ratio: float = 0.0
   batch_size: int = 8
-  device: str = None
+  device: Optional[str] = None
 
   def to_dict(self):
     """

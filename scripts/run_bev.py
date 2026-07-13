@@ -1,29 +1,61 @@
 from pathlib import Path
 import pandas as pd
 import numpy as np
+import yaml
+from tqdm import tqdm
 
-from src.bev import BEVEstimator, BevVisualizer, BevConfig
+from src.bev import BevEstimator, BevVisualizer, BevConfig
+from src.utils import filter_missing, report_skip
 
-def run_bev(output_dir=Path("data/processed/bev/heuristic"), video_names=None, midas=False):
+def heuristic_output_path(video_name):
+  return Path(f"data/processed/bev/heuristic/{video_name}_estimations.parquet")
+
+def midas_output_path(video_name):
+  return Path(f"data/processed/bev/midas/{video_name}_estimations.parquet")
+
+def load_config(config_path=None):
+  """
+  Use configs from YAML files or use defaults.
+  """
+  if config_path and Path(config_path).exists():
+    with open(config_path) as f:
+      config_dict = yaml.safe_load(f)
+    return BevConfig(**config_dict)
+  return BevConfig()
+
+def run_bev(config, output_dir=Path("data/processed/bev/heuristic"), video_names=None, midas=False, image_width=None, force=False):
   # Paths
   tracking_dir = Path("data/processed/trackings")
 
+  if midas:
+    output_dir = Path("data/processed/bev/midas")
   output_dir.mkdir(parents=True, exist_ok=True)
 
-  estimator = BEVEstimator() # pass in image width when using map as background
+  print("Loading BEV Estimator")
+  print(f"Config: {config.to_dict()}")
+  if image_width:
+    estimator = BevEstimator(image_width=image_width, depth_window=config.depth_window)
+  else:
+    estimator = BevEstimator(depth_window=config.depth_window)
+  print("Estimator loaded")
+
+  step_label = "bev-midas" if midas else "bev-heuristic"
 
   tracking_files = list(tracking_dir.glob("*_trackings.parquet"))
   if video_names:
-    tracking_files = [f for f in tracking_files if f.stem.replace("_trackings", "") in video_names]
+    output_path_fcn = midas_output_path if midas else heuristic_output_path
+    todo = filter_missing(video_names, output_path_fcn, force=force)
+    report_skip(f"bev-{step_label}", video_names, todo)
+    tracking_files = [f for f in tracking_files if f.stem.replace("_trackings", "") in todo]
 
   # Process each tracking file
-  for tracking_file in tracking_files:
+  for tracking_file in tqdm(tracking_files, desc="Videos", unit="video"):
     video_name = tracking_file.stem.replace('_trackings', '')
     print(f"\n{'='*60}")
     print(f"Processing: {video_name}")
     print(f"{'='*60}")
 
-    depth_dir = Path("outputs/depths") / video_name # TODO Modify later
+    depth_dir = Path("data/processed/depths") / video_name
     
     # Load tracking data
     tracking_df = pd.read_parquet(tracking_file)
@@ -31,11 +63,16 @@ def run_bev(output_dir=Path("data/processed/bev/heuristic"), video_names=None, m
     all_estimations = []
 
     # Process each frame
-    for frame_id in sorted(tracking_df["frame_id"].unique()):
+    frame_ids = sorted(tracking_df["frame_id"].unique())
+    for frame_id in tqdm(frame_ids, desc=video_name, unit="frame", leave=False):
       frame_rows = tracking_df[tracking_df["frame_id"] == frame_id]
 
       if midas:
-        depth_map = np.load(depth_dir / f"frame_{frame_id:06d}.npy")
+        depth_path = depth_dir / f"frame_{frame_id:06d}.npy"
+        if not depth_path.exists():
+          print(f"Missing depth for frame {frame_id}, skipping")
+          continue
+        depth_map = np.load(depth_path)
 
       for _, row in frame_rows.iterrows():
         bbox = [row["x1"], row["y1"], row["x2"], row["y2"]]
@@ -44,6 +81,7 @@ def run_bev(output_dir=Path("data/processed/bev/heuristic"), video_names=None, m
         else:
           bev = estimator.estimate(bbox)
         all_estimations.append({
+          "video_name": video_name,
           "frame_id": frame_id,
           "frame_path": row["frame_path"],
           "track_id": row["track_id"],
@@ -57,10 +95,10 @@ def run_bev(output_dir=Path("data/processed/bev/heuristic"), video_names=None, m
     if estimation_df.empty:
       print("No estimation found.")
       continue
+    
     output_file = output_dir / f"{video_name}_estimations.parquet"
     estimation_df.to_parquet(output_file, index=False)
-    
-    print(f"Saved tracks to: {output_file}")
+    print(f"Saved estimations to: {output_file}")
 
     # Print statistics
     total_frames = tracking_df["frame_id"].nunique()
@@ -79,10 +117,7 @@ def run_bev(output_dir=Path("data/processed/bev/heuristic"), video_names=None, m
     print(f"Visualizing: {video_name}")
     print(f"{'='*60}")
 
-    visualizer = BevVisualizer(scale=3)
-
-    if midas:
-      visualizer = BevVisualizer()
+    visualizer = BevVisualizer(scale=3) if not midas else BevVisualizer()
 
     frame_estimations = []
 
@@ -100,10 +135,7 @@ def run_bev(output_dir=Path("data/processed/bev/heuristic"), video_names=None, m
 
       frame_estimations.append(estimations)
 
-    video_file = (
-      output_dir /
-      f"{video_name}_bev.mp4"
-    )
+    video_file = output_dir / f"{video_name}_bev.mp4"
 
     visualizer.create_bev_video(
       frame_estimations,
@@ -119,27 +151,19 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("--config", type=str, default=None, help="Path to config YAML")
   parser.add_argument("--midas", action="store_true", default=None, help="Use MiDaS depth")
-  parser.add_argument("--n-init", type=float, default=None, help="N init")
-  parser.add_argument("--nn-budget", type=float, default=None, help="NN budget")
+  parser.add_argument("--depth_window", type=int, default=None, help="Depth window")
+  parser.add_argument("--image_width", type=int, default=None, help="Image width for BEV estimator")
   parser.add_argument("--video", type=str, nargs="+", default=None, help="Specific videos to process")
   parser.add_argument("--output", type=str, default=None, help="Path to output directory")
+  parser.add_argument("--force", action="store_true", default=None, help="Force BEV estimation")
   
   args = parser.parse_args()
 
-  """
-  if args.config:
-    config = load_config(args.config)
-  else:
-    config = TrackConfig()
+  config = load_config(args.config) if args.config else BevConfig()
 
   # Override with command line args if provided
-  if args.max_age is not None:
-    config.max_age = args.max_age
-  if args.n_init is not None:
-    config.n_init = args.n_init
-  if args.nn_budget is not None:
-    config.nn_budget = args.nn_budget
-  """
+  if args.depth_window is not None:
+    config.depth_window = args.depth_window
 
   if args.output:
     output_dir = Path(args.output)
@@ -148,4 +172,4 @@ if __name__ == "__main__":
   else:
     output_dir = Path("data/processed/bev/heuristic")
   
-  run_bev(output_dir=output_dir, video_names=args.video, midas=args.midas)
+  run_bev(config=config, output_dir=output_dir, video_names=args.video, midas=args.midas, image_width=args.image_width, force=args.force)
