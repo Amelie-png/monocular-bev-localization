@@ -3,7 +3,7 @@ import torch
 import cv2
 import numpy as np
 
-from src.utils.device import detect_available_device
+from src.utils import detect_available_device
 
 class MiDaSEstimator:
   """

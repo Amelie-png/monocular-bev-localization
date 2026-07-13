@@ -5,6 +5,10 @@ from tqdm import tqdm
 import yaml
 
 from src.detection import PlayerDetector, DetectionConfig
+from src.utils import filter_missing, report_skip
+
+def detection_output_path(video_name):
+  return Path(f"data/processed/detections/{video_name}_detections.parquet")
 
 def load_config(config_path=None):
   """
@@ -16,13 +20,15 @@ def load_config(config_path=None):
     return DetectionConfig(**config_dict)
   return DetectionConfig()
 
-def run_detection(config, output_dir=Path("data/processed/detections"), video_names=None):
+def run_detection(config, output_dir=Path("data/processed/detections"), video_names=None, force=False):
   """
   Run detection on video frames.
 
   Args:
     config: DetectionConfig object
+    output_dir: Path to detection file output directory
     video_names: List of videos to process, optional (None = all)
+    force: Boolean to force run detection
   """
   # Paths
   frame_metadata_dir = Path("data/processed/frame_metadata")
@@ -41,7 +47,9 @@ def run_detection(config, output_dir=Path("data/processed/detections"), video_na
 
   metadata_files = list(frame_metadata_dir.glob("*_metadata.parquet"))
   if video_names:
-    metadata_files = [f for f in metadata_files if f.stem.replace("_metadata", "") in video_names]
+    todo = filter_missing(video_names, detection_output_path, force=force)
+    report_skip("detection", video_names, todo)
+    metadata_files = [f for f in metadata_files if f.stem.replace("_metadata", "") in todo]
 
   # Process each video's frames
   for metadata_file in metadata_files:
@@ -85,6 +93,7 @@ def run_detection(config, output_dir=Path("data/processed/detections"), video_na
         for detection_idx, det in enumerate(detections):
           x1, y1, x2, y2 = det["bbox"]
           all_detections.append({
+            "video_name": video_name,
             "frame_id": frame_id,
             "frame_path": frame_path,
             "detection_id": detection_idx,
@@ -129,13 +138,11 @@ if __name__ == "__main__":
   parser.add_argument("--batch-size", type=int, default=None, help="Batch size")
   parser.add_argument("--video", type=str, nargs="+", default=None, help="Specific videos to process")
   parser.add_argument("--output", type=str, default=None, help="Path to output directory")
+  parser.add_argument("--force", action="store_true", default=None, help="Force detection")
   
   args = parser.parse_args()
 
-  if args.config:
-    config = load_config(args.config)
-  else:
-    config = DetectionConfig()
+  config = load_config(args.config) if args.config else DetectionConfig()
   
   # Override with command line args if provided
   if args.model is not None:
@@ -149,4 +156,4 @@ if __name__ == "__main__":
 
   output_dir = Path(args.output) if args.output else Path("data/processed/detections")
   
-  run_detection(config, output_dir=output_dir, video_names=args.video)
+  run_detection(config, output_dir=output_dir, video_names=args.video, force=args.force)

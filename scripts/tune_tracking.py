@@ -1,6 +1,7 @@
 from pathlib import Path
-from scripts.evaluate_tracking import load_split_file, evaluate_trackings
+from scripts.evaluate_tracking import evaluate_trackings
 from scripts.run_tracking import run_tracking
+from src.utils import load_split_file
 from src.tracking import ByteTrackConfig
 import yaml
 import pandas as pd
