@@ -2,8 +2,13 @@ from pathlib import Path
 import pandas as pd
 import cv2
 import yaml
+from tqdm import tqdm
 
 from src.tracking import PlayerTracker, ByteTrackConfig
+from src.utils import filter_missing, report_skip
+
+def tracking_output_path(video_name):
+  return Path(f"data/processed/trackings/{video_name}_trackings.parquet")
 
 def load_config(config_path=None):
   """
@@ -15,7 +20,7 @@ def load_config(config_path=None):
     return ByteTrackConfig(**config_dict)
   return ByteTrackConfig()
 
-def run_tracking(config, output_dir=Path("data/processed/trackings"), video_names=None):
+def run_tracking(config, output_dir=Path("data/processed/trackings"), video_names=None, force=False):
   # Paths
   detections_dir = Path("data/processed/detections")
 
@@ -29,10 +34,12 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
 
   detection_files = list(detections_dir.glob("*_detections.parquet"))
   if video_names:
-    detection_files = [f for f in detection_files if f.stem.replace("_detections", "") in video_names]
+    todo = filter_missing(video_names, tracking_output_path, force=force)
+    report_skip("tracking", video_names, todo)
+    detection_files = [f for f in detection_files if f.stem.replace("_detections", "") in todo]
 
   # Process each detection file
-  for detection_file in detection_files:
+  for detection_file in tqdm(detection_files, desc="Videos", unit="video"):
     video_name = detection_file.stem.replace('_detections', '')
     print(f"\n{'='*60}")
     print(f"Processing: {video_name}")
@@ -44,9 +51,9 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
     all_tracks = []
 
     # Process each frame
-    for frame_id in sorted(detection_df["frame_id"].unique()):
+    frame_ids = sorted(detection_df["frame_id"].unique())
+    for frame_id in tqdm(frame_ids, desc=video_name, unit="frame", leave=False):
       frame_rows = detection_df[detection_df["frame_id"] == frame_id]
-
       frame_path = frame_rows.iloc[0]["frame_path"]
 
       # Load image
@@ -74,6 +81,7 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
       # Store results
       for track in tracks:
         all_tracks.append({
+          "video_name": video_name,
           "frame_id": frame_id,
           "frame_path": frame_path,
 
@@ -84,7 +92,7 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
           "x2": track["bbox"][2],
           "y2": track["bbox"][3],
 
-          "confidence": track["confidence"]
+          "confidence": track["confidence"],
         })
     
     # Reset tracker for new video
@@ -95,9 +103,9 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
     if tracks_df.empty:
       print("No tracks found.")
       continue
+
     output_file = output_dir / f"{video_name}_trackings.parquet"
     tracks_df.to_parquet(output_file, index=False)
-    
     print(f"Saved tracks to: {output_file}")
 
     # Print statistics
@@ -126,13 +134,11 @@ if __name__ == "__main__":
   parser.add_argument("--consecutive", type=int, default=None, help="minimum consecutive frames")
   parser.add_argument("--video", type=str, nargs="+", default=None, help="Specific videos to process")
   parser.add_argument("--output", type=str, default=None, help="Path to output directory")
+  parser.add_argument("--force", action="store_true", default=None, help="Force tracking")
 
   args = parser.parse_args()
 
-  if args.config:
-    config = load_config(args.config)
-  else:
-    config = ByteTrackConfig()
+  config = load_config(args.config) if args.config else ByteTrackConfig()
 
   # Override with command line args if provided
   if args.activation is not None:
@@ -144,4 +150,4 @@ if __name__ == "__main__":
 
   output_dir = Path(args.output) if args.output else Path("data/processed/trackings")
   
-  run_tracking(config, output_dir=output_dir, video_names=args.video)
+  run_tracking(config, output_dir=output_dir, video_names=args.video, force=args.force)

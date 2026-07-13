@@ -1,6 +1,6 @@
 import numpy as np
 
-class BEVEstimator:
+class BevEstimator:
   """
   Estimate bird's-eye-view coordinates from player detections.
   """
