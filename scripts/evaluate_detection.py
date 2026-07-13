@@ -3,13 +3,7 @@ import pandas as pd
 
 from src.detection import DetectionVisualizer
 from src.evaluation import compute_detection_metrics
-
-def load_split_file(split_file):
-  """
-  Load video names from split file.
-  """
-  with open(split_file) as f:
-    return [line.strip() for line in f if line.strip()]
+from src.utils import load_split_file
 
 def evaluate_detections(
     video_names, 

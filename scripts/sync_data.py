@@ -34,7 +34,7 @@ for metadata_file in metadata_dir.glob("*_metadata.parquet"):
   round_data = round_info[round_info["round_number"] == round_number].iloc[0]
 
   # Infer duration
-  video_end = frames_df["timestamp_seconds"].max()
+  video_end = frames_df["timestamp"].max()
 
   config = {
     'round_number': round_number,

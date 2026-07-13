@@ -5,8 +5,12 @@ import numpy as np
 from tqdm import tqdm
 
 from src.depth import MiDaSEstimator
+from src.utils import filter_missing, report_skip, mark_done
 
-def run_depth(output_dir=Path("data/processed/depths"), video_names=None):
+def depth_output_path(video_name):
+  return Path(f"data/processed/depths/{video_name}/.done")
+
+def run_depth(output_dir=Path("data/processed/depths"), video_names=None, force=False):
   # Paths
   tracking_dir = Path("data/processed/trackings")
   output_dir.mkdir(parents=True, exist_ok=True)
@@ -14,11 +18,15 @@ def run_depth(output_dir=Path("data/processed/depths"), video_names=None):
   vis_dir = Path("outputs/depths/visualizations")
   vis_dir.mkdir(parents=True, exist_ok=True)
 
+  print("Loading MiDaS Estimator")
   estimator = MiDaSEstimator()
+  print("Estimator loaded")
 
   tracking_files = list(tracking_dir.glob("*_trackings.parquet"))
   if video_names:
-    tracking_files = [f for f in tracking_files if f.stem.replace("_trackings", "") in video_names]
+    todo = filter_missing(video_names, depth_output_path, force=force)
+    report_skip("depth", video_names, todo)
+    tracking_files = [f for f in tracking_files if f.stem.replace("_trackings", "") in todo]
 
   for tracking_file in tracking_files:
     video_name = tracking_file.stem.replace('_trackings', '')
@@ -44,12 +52,17 @@ def run_depth(output_dir=Path("data/processed/depths"), video_names=None):
     )
 
     # Process each frame
-    for idx, frame_id in enumerate(tqdm(frame_ids, desc=f"{video_name}", unit="frame", leave=False)):
-      frame_rows = tracking_df[tracking_df["frame_id"] == frame_id]
-
+    depth_file = None
+    for idx, frame_id in enumerate(tqdm(frame_ids, desc=video_name, unit="frame", leave=False)):
       depth_file = video_depth_dir / f"frame_{frame_id:06d}.npy"
 
+      # Per-frame resume: skip frames already computed, even if the video-level .done marker isn't set yet (e.g. crashed mid-video)
+      if depth_file.exists() and not force:
+        continue
+
+      frame_rows = tracking_df[tracking_df["frame_id"] == frame_id]
       frame_path = frame_rows.iloc[0]["frame_path"]
+
       image = cv2.imread(frame_path)
       if image is None:
         print(f"Could not load {frame_path}")
@@ -72,7 +85,8 @@ def run_depth(output_dir=Path("data/processed/depths"), video_names=None):
 
       np.save(depth_file, depth)
     
-    print(f"Saved depths to: {depth_file}")
+    mark_done(video_depth_dir / ".done")
+    print(f"Saved depths to: {video_depth_dir}")
     print(f"Saved sample depth visualizations to {vis_dir}")
 
   print("\nAll depths complete!")
@@ -81,32 +95,14 @@ if __name__ == "__main__":
   import argparse
 
   parser = argparse.ArgumentParser()
-  parser.add_argument("--config", type=str, default=None, help="Path to config YAML")
-  parser.add_argument("--max-age", type=str, default=None, help="Max age")
-  parser.add_argument("--n-init", type=float, default=None, help="N init")
-  parser.add_argument("--nn-budget", type=float, default=None, help="NN budget")
   parser.add_argument("--video", type=str, nargs="+", default=None, help="Specific videos to process")
   parser.add_argument("--output", type=str, default=None, help="Path to output directory")
+  parser.add_argument("--force", action="store_true", default=None, help="Force depths")
   
   args = parser.parse_args()
 
-  """
-  if args.config:
-    config = load_config(args.config)
-  else:
-    config = TrackConfig()
-
-  # Override with command line args if provided
-  if args.max_age is not None:
-    config.max_age = args.max_age
-  if args.n_init is not None:
-    config.n_init = args.n_init
-  if args.nn_budget is not None:
-    config.nn_budget = args.nn_budget
-  """
-
   output_dir = Path(args.output) if args.output else Path("data/processed/depths")
   
-  run_depth(output_dir=output_dir, video_names=args.video)
+  run_depth(output_dir=output_dir, video_names=args.video, force=args.force)
 
   

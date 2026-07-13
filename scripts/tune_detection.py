@@ -1,6 +1,7 @@
 from pathlib import Path
-from scripts.evaluate_detection import load_split_file, evaluate_detections
+from scripts.evaluate_detection import evaluate_detections
 from scripts.run_detection import run_detection
+from src.utils import load_split_file
 from src.detection import DetectionConfig
 import yaml
 import pandas as pd
