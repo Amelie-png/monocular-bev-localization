@@ -8,7 +8,7 @@ round_info_dir = Path("data/processed/recording_plans")
 sync_dir = Path("data/processed/sync")
 sync_dir.mkdir(parents=True, exist_ok=True)
 
-# GLOBAL CONFIGS
+# MANUAL CONFIG
 VIDEO_START_TIME = 3.0
 
 for metadata_file in metadata_dir.glob("*_metadata.parquet"):
@@ -20,9 +20,7 @@ for metadata_file in metadata_dir.glob("*_metadata.parquet"):
 
   # Parse video_name
   parts = video_name.split("_")
-
   match_name = "_".join(parts[:2])
-
   round_number = int(parts[-1])
 
   # Load metadata
@@ -32,6 +30,17 @@ for metadata_file in metadata_dir.glob("*_metadata.parquet"):
 
   round_info = pd.read_parquet(round_info_file)
   round_data = round_info[round_info["round_number"] == round_number].iloc[0]
+  player_pov = round_data["player_pov"]
+
+  positions_df = pd.read_parquet(positions_file)
+  pov_positions = positions_df[
+    (positions_df["round_number"] == round_number) &
+    (positions_df["player_name"] == player_pov)
+  ]
+
+  if pov_positions.empty:
+    print(f"WARNING: no POV rows for {player_pov} in round {round_number}")
+    continue
 
   # Infer duration
   video_end = frames_df["timestamp"].max()
@@ -44,22 +53,12 @@ for metadata_file in metadata_dir.glob("*_metadata.parquet"):
     'tick_end': int(round_data["end_tick"])
   }
 
-  print(
-    f"Ticks: "
-    f"{config['tick_start']} - "
-    f"{config['tick_end']}"
-  )
-
-  print(
-    f"Video: "
-    f"{config['video_start']:.1f}s - "
-    f"{config['video_end']:.1f}s"
-  )
+  print(f"POV: {player_pov} | Ticks: {config['tick_start']}-{config['tick_end']} | Video: {config['video_start']:.1f}s-{config['video_end']:.1f}s")
   
   # Synchronize
   sync_df = synchronize_round(
     frame_metadata_path=metadata_file,
-    tick_data_path=positions_file,
+    pov_positions_df=pov_positions,
     round_config=config
   )
   
