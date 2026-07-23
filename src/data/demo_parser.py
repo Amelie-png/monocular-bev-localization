@@ -10,7 +10,9 @@ FIELDS = [
   "total_rounds_played",  # Which round (0-indexed)
   "game_time",            # Time in seconds since match start
   "round_in_progress",    # Is round active
-  "is_freeze_period"      # Is it freeze time
+  "is_freeze_period",      # Is it freeze time
+  "pitch",
+  "yaw"
 ]
 
 def parse_demo(demo_path):
@@ -26,7 +28,10 @@ def parse_demo(demo_path):
   parser = DemoParser(str(demo_path))
 
   df = parser.parse_ticks(FIELDS)
-  df = df.rename(columns={"total_rounds_played": "round_number"})
+  df = df.rename(columns={
+    "total_rounds_played": "round_number", 
+    "X": "x", "Y": "y", "Z": "z",
+  })
 
   return df.reset_index(drop=True)
 
@@ -40,7 +45,8 @@ def clean_demo_data(df):
   filtered = df.loc[df["is_alive"] & ~df["is_freeze_period"]]
 
   df = df.rename(columns={
-    'total_rounds_played': 'round_number'
+    "total_rounds_played": "round_number",
+    "X": "x", "Y": "y", "Z": "z",
   })
 
   columns = [
@@ -50,7 +56,7 @@ def clean_demo_data(df):
     "player_steamid",
     "player_name",
     "team_name",
-    "X", "Y", "Z"
+    "x", "y", "z"
   ]
 
   return filtered[columns].reset_index(drop=True)

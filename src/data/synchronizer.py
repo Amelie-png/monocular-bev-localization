@@ -1,5 +1,5 @@
 import pandas as pd
-from pathlib import Path
+import numpy as np
 
 class RoundSynchronizer:
   """
@@ -35,20 +35,19 @@ class RoundSynchronizer:
 
     return time
   
-def synchronize_round(frame_metadata_path, tick_data_path, round_config):
+def synchronize_round(frame_metadata_path, pov_positions_df, round_config):
   """
   Create frame-to-tick mapping for one round.
   
   Args:
     frame_metadata_path: Path to frame metadata parquet
-    tick_data_path: Path to demo tick data parquet
+    pov_positions_df: Demo tick DataFrame for camera pov only
     round_config: Dict with 'video_start', 'video_end', 'tick_start', 'tick_end'
   
   Returns:
     DataFrame with frame_id, timestamp, tick, and nearest player positions
   """
   frames_df = pd.read_parquet(frame_metadata_path)
-  ticks_df = pd.read_parquet(tick_data_path)
   
   sync = RoundSynchronizer(
     video_start_time=round_config["video_start"],
@@ -58,12 +57,22 @@ def synchronize_round(frame_metadata_path, tick_data_path, round_config):
   )
   
   frames_df["tick"] = frames_df["timestamp"].apply(sync.video_time_to_tick)
+
+  pov_positions_df = pov_positions_df.sort_values("tick").reset_index(drop=True)
+  pov_ticks = pov_positions_df["tick"].values
+
+  def nearest_idx(target_tick):
+    idx = np.searchsorted(pov_ticks, target_tick)
+    idx = min(idx, len(pov_ticks) - 1)
+    if idx > 0 and abs(pov_ticks[idx - 1] - target_tick) < abs(pov_ticks[idx] - target_tick):
+      idx -= 1
+    return idx
   
-  # For each frame, find nearest tick in demo data
-  def get_nearest_tick_data(target_tick):
-    closest_idx = (ticks_df["tick"] - target_tick).abs().idxmin()
-    return ticks_df.loc[closest_idx, "tick"]
-  
-  frames_df["matched_tick"] = frames_df["tick"].apply(get_nearest_tick_data)
+  idxs = frames_df["tick"].apply(nearest_idx).values
+  frames_df["matched_tick"] = pov_positions_df.loc[idxs, "tick"].values
+  frames_df["cam_x"] = pov_positions_df.loc[idxs, "x"].values
+  frames_df["cam_y"] = pov_positions_df.loc[idxs, "y"].values
+  frames_df["yaw_deg"] = pov_positions_df.loc[idxs, "yaw"].values
+  frames_df["pitch_deg"] = pov_positions_df.loc[idxs, "pitch"].values
   
   return frames_df
