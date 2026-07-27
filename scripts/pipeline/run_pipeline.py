@@ -4,7 +4,7 @@ from scripts.tracking.run_tracking import run_tracking
 from scripts.bev.run_depth import run_depth
 from scripts.bev.run_bev import run_bev
 from scripts.pipeline.build_trajectory import build_trajectory
-from scripts.pipeline.config_loader import load_pipeline_config
+from scripts.utils.config_loader import load_pipeline_config
 from src.utils import load_split_file
 
 def run_pipeline(config, videos, force=False):
