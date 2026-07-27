@@ -1,10 +1,10 @@
-from scripts.extract_frames import run_frame_extraction
-from scripts.run_detection import run_detection
-from scripts.run_tracking import run_tracking
-from scripts.run_depth import run_depth
-from scripts.run_bev import run_bev
-from scripts.build_trajectory import build_trajectory
-from scripts.config_loader import load_pipeline_config
+from scripts.data.extract_frames import run_frame_extraction
+from scripts.detection.run_detection import run_detection
+from scripts.tracking.run_tracking import run_tracking
+from scripts.bev.run_depth import run_depth
+from scripts.bev.run_bev import run_bev
+from scripts.pipeline.build_trajectory import build_trajectory
+from scripts.pipeline.config_loader import load_pipeline_config
 from src.utils import load_split_file
 
 def run_pipeline(config, videos, force=False):
