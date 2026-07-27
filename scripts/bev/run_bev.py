@@ -24,9 +24,11 @@ def load_config(config_path=None):
     return BevConfig(**config_dict)
   return BevConfig()
 
-def run_bev(config, output_dir=Path("data/processed/bev/heuristic"), video_names=None, midas=False, image_width=None, force=False):
-  # Paths
-  tracking_dir = Path("data/processed/trackings")
+def run_bev(
+    config, 
+    output_dir=Path("data/processed/bev/heuristic"), 
+    tracking_dir=Path("data/processed/trackings"),
+    video_names=None, midas=False, image_width=None, force=False):
 
   if midas:
     output_dir = Path("data/processed/bev/midas")
@@ -136,6 +138,7 @@ if __name__ == "__main__":
   parser.add_argument("--image_width", type=int, default=None, help="Image width for BEV estimator")
   parser.add_argument("--video", type=str, nargs="+", default=None, help="Specific videos to process")
   parser.add_argument("--output", type=str, default=None, help="Path to output directory")
+  parser.add_argument("--tracking", type=str, default=None, help="Path to tracking directory")
   parser.add_argument("--force", action="store_true", default=None, help="Force BEV estimation")
   
   args = parser.parse_args()
@@ -153,4 +156,11 @@ if __name__ == "__main__":
   else:
     output_dir = Path("data/processed/bev/heuristic")
   
-  run_bev(config=config, output_dir=output_dir, video_names=args.video, midas=args.midas, image_width=args.image_width, force=args.force)
+  run_bev(
+    config=config, 
+    output_dir=output_dir, 
+    tracking_dir=Path(args.tracking),
+    video_names=args.video, 
+    midas=args.midas, 
+    image_width=args.image_width, 
+    force=args.force)
