@@ -9,7 +9,8 @@ from src.bev import BevConfig
 STEP_CONFIG_CLASSES = {
   "detection": DetectionConfig,
   "tracking": ByteTrackConfig,
-  "bev": BevConfig,
+  "heuristic_bev": BevConfig,
+  "midas_bev": BevConfig,
 }
 
 def load_step_config(step_name, config_dir="configs"):
