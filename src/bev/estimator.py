@@ -9,12 +9,14 @@ class BevEstimator:
     image_width=1920,
     depth_scale=10000,
     depth_window=5,
+    fov_scale=1.0,
   ):
     self.image_width = image_width
     self.depth_scale = depth_scale
     self.depth_window = depth_window
+    self.fov_scale = fov_scale
 
-  def estimate(self, bbox, depth=None, depth_map=None):
+  def estimate(self, bbox, depth=None, depth_map=None, depth_min=None, depth_max=None):
     """
     Estimate BEV position.
 
@@ -22,6 +24,8 @@ class BevEstimator:
       bbox: [x1, y1, x2, y2]
       depth: Optional depth value.
       depth_map: Optional MiDaS depth map.
+      depth_min: Optional MiDaS depth min parameter.
+      depth_max: Optional MiDaS depth max parameter.
 
     Return:
       Dict of BEV x,y positions and depth
@@ -30,7 +34,7 @@ class BevEstimator:
     if depth is not None:
       player_depth = depth
     elif depth_map is not None:
-      player_depth = self.extract_depth(depth_map, bbox)
+      player_depth = self.extract_depth(depth_map, bbox, depth_min=depth_min, depth_max=depth_max)
     else:
       player_depth = self.heuristic_depth(bbox)
 
@@ -46,7 +50,7 @@ class BevEstimator:
 
     return self.depth_scale / bbox_height
   
-  def extract_depth(self, depth_map, bbox):
+  def extract_depth(self, depth_map, bbox, depth_min=None, depth_max=None):
     """
     Extract player depth from MiDaS depth map.
 
@@ -77,10 +81,13 @@ class BevEstimator:
     depth_min = float(depth_map.min())
     depth_max = float(depth_map.max())
 
+    if depth_min is None or depth_max is None:
+      depth_min, depth_max = float(depth_map.min()), float(depth_map.max())
+    
     depth = (depth - depth_min) / (depth_max - depth_min + 1e-8)
+    depth = np.clip(depth, 0.0, 1.0)
 
-    distance = 1.0 - depth
-    distance *= 300
+    distance = (1.0 - depth) * 300
 
     return distance
   
@@ -103,7 +110,7 @@ class BevEstimator:
     offset = (center_x - image_center) / image_center
 
     # BEV coord
-    bev_x = offset * player_depth
+    bev_x = offset * player_depth * self.fov_scale
     bev_y = player_depth
 
     return {

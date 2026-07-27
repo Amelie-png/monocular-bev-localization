@@ -16,8 +16,8 @@ def run_pipeline(config, videos, force=False):
   run_detection(config=config.detection, video_names=videos, force=force)
   run_tracking(config=config.tracking, video_names=videos, force=force)
   run_depth(video_names=videos, force=force)
-  run_bev(config=config.bev, video_names=videos, midas=False, force=force)
-  run_bev(config=config.bev, video_names=videos, midas=True, force=force)
+  run_bev(config=config.heuristic_bev, video_names=videos, midas=False, force=force)
+  run_bev(config=config.midas_bev, video_names=videos, midas=True, force=force)
 
   build_trajectory(videos, variant="heuristic", force=force)
   build_trajectory(videos, variant="midas", force=force)
