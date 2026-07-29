@@ -1,10 +1,10 @@
-from scripts.extract_frames import run_frame_extraction
-from scripts.run_detection import run_detection
-from scripts.run_tracking import run_tracking
-from scripts.run_depth import run_depth
-from scripts.run_bev import run_bev
-from scripts.build_trajectory import build_trajectory
-from scripts.config_loader import load_pipeline_config
+from scripts.data.extract_frames import run_frame_extraction
+from scripts.detection.run_detection import run_detection
+from scripts.tracking.run_tracking import run_tracking
+from scripts.bev.run_depth import run_depth
+from scripts.bev.run_bev import run_bev
+from scripts.utils.build_trajectory import build_trajectory
+from scripts.utils.config_loader import load_pipeline_config
 from src.utils import load_split_file
 
 def run_pipeline(config, videos, force=False):
@@ -16,8 +16,8 @@ def run_pipeline(config, videos, force=False):
   run_detection(config=config.detection, video_names=videos, force=force)
   run_tracking(config=config.tracking, video_names=videos, force=force)
   run_depth(video_names=videos, force=force)
-  run_bev(config=config.bev, video_names=videos, midas=False, force=force)
-  run_bev(config=config.bev, video_names=videos, midas=True, force=force)
+  run_bev(config=config.heuristic_bev, video_names=videos, midas=False, force=force)
+  run_bev(config=config.midas_bev, video_names=videos, midas=True, force=force)
 
   build_trajectory(videos, variant="heuristic", force=force)
   build_trajectory(videos, variant="midas", force=force)
