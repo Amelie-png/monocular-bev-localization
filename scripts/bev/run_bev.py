@@ -26,12 +26,13 @@ def load_config(config_path=None):
 
 def run_bev(
     config, 
-    output_dir=Path("data/processed/bev/heuristic"), 
+    output_dir=None, 
     tracking_dir=Path("data/processed/trackings"),
     video_names=None, midas=False, image_width=None, force=False):
 
-  if midas:
-    output_dir = Path("data/processed/bev/midas")
+  if output_dir is None:
+    output_dir = Path("data/processed/bev/midas") if midas else Path("data/processed/bev/heuristic")
+  output_dir = Path(output_dir)
   output_dir.mkdir(parents=True, exist_ok=True)
 
   print("Loading BEV Estimator")
@@ -138,7 +139,7 @@ if __name__ == "__main__":
   parser.add_argument("--image_width", type=int, default=None, help="Image width for BEV estimator")
   parser.add_argument("--video", type=str, nargs="+", default=None, help="Specific videos to process")
   parser.add_argument("--output", type=str, default=None, help="Path to output directory")
-  parser.add_argument("--tracking", type=str, default=None, help="Path to tracking directory")
+  parser.add_argument("--tracking", type=str, default="data/processed/trackings", help="Path to tracking directory")
   parser.add_argument("--force", action="store_true", default=None, help="Force BEV estimation")
   
   args = parser.parse_args()
@@ -148,17 +149,10 @@ if __name__ == "__main__":
   # Override with command line args if provided
   if args.depth_window is not None:
     config.depth_window = args.depth_window
-
-  if args.output:
-    output_dir = Path(args.output)
-  elif args.midas:
-    output_dir = Path("data/processed/bev/midas")
-  else:
-    output_dir = Path("data/processed/bev/heuristic")
   
   run_bev(
     config=config, 
-    output_dir=output_dir, 
+    output_dir=args.output, 
     tracking_dir=Path(args.tracking),
     video_names=args.video, 
     midas=args.midas, 
