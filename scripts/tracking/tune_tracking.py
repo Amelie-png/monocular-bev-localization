@@ -1,6 +1,6 @@
 from pathlib import Path
-from scripts.evaluate_tracking import evaluate_trackings
-from scripts.run_tracking import run_tracking
+from scripts.tracking.evaluate_tracking import evaluate_trackings
+from scripts.tracking.run_tracking import run_tracking
 from src.utils import load_split_file
 from src.tracking import ByteTrackConfig
 import yaml

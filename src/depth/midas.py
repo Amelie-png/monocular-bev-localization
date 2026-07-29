@@ -1,4 +1,5 @@
 from transformers import DPTImageProcessor, DPTForDepthEstimation
+from pathlib import Path
 import torch
 import cv2
 import numpy as np
@@ -68,3 +69,24 @@ class MiDaSEstimator:
     )
 
     return colored
+
+def compute_depth_normalization_stats(video_name, depth_dir="data/processed/depths", n_samples=20, low_pct=2, high_pct=98):
+  """
+  Sample depth maps across the video and compute stable global percentile
+  bounds, so the same physical distance maps to the same normalized value
+  in every frame.
+  """
+  video_depth_dir = Path(depth_dir) / video_name
+  files = sorted(video_depth_dir.glob("frame_*.npy"))
+  if not files:
+    raise ValueError(f"No depth files found for {video_name}")
+
+  step = max(1, len(files) // n_samples)
+  sample_files = files[::step][:n_samples]
+
+  values = [np.load(f).flatten() for f in sample_files]
+  all_vals = np.concatenate(values)
+
+  depth_min = float(np.percentile(all_vals, low_pct))
+  depth_max = float(np.percentile(all_vals, high_pct))
+  return depth_min, depth_max
