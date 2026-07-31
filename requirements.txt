@@ -12,3 +12,5 @@ supervision
 trackers
 transformers
 omegaconf
+mkdocs
+mkdocs-material

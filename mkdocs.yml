@@ -1,0 +1,67 @@
+site_name: Monocular BEV Localization
+site_description: Undergraduate Research Project
+site_author: Amelie Zhang
+
+theme:
+  name: material
+
+  custom_dir: overrides
+  extra_css:
+    - stylesheets/extra.css
+
+  logo: assets/logo.svg
+  favicon: assets/favicon.png
+
+  features:
+    - navigation.tabs
+    - navigation.top
+    - navigation.footer
+    - navigation.instant
+    - navigation.tracking
+    - navigation.indexes
+    - content.code.copy
+    - content.tabs.link
+    - toc.follow
+    - search.highlight
+    - search.suggest
+
+  palette:
+    # Light mode
+    - scheme: default
+      primary: teal
+      accent: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to dark mode
+
+    # Dark mode
+    - scheme: slate
+      primary: teal
+      accent: light blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to light mode
+
+repo_name: Amelie-png/monocular-bev-localization
+repo_url: https://github.com/Amelie-png/monocular-bev-localization
+
+nav:
+  - Home: index.md
+  - Project Report: report.md
+  - Development Log: log.md
+  - ML Analysis: analysis.md
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+extra_javascript:
+  - https://unpkg.com/mermaid@11/dist/mermaid.min.js

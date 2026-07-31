@@ -1,0 +1,125 @@
+/* ---------- layout ---------- */
+.md-content {
+  max-width: 1200px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.md-typeset h1 {
+  font-size: 2.8rem;
+}
+
+.md-button {
+  border-radius: 8px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.md-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+img {
+  border-radius: 12px;
+}
+
+/* ---------- hero ---------- */
+.hero {
+  text-align: center;
+  padding: 4rem 1rem 3rem;
+}
+
+.hero__inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.hero__eyebrow {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--md-primary-fg-color);
+  margin-bottom: 0.75rem;
+}
+
+.hero__title {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+}
+
+.hero__subtitle {
+  font-size: 1.1rem;
+  color: var(--md-default-fg-color--light);
+  margin-bottom: 2rem;
+}
+
+.hero__buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ---------- section divider ---------- */
+.md-typeset hr {
+  margin: 3rem 0;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+/* ---------- feature cards ---------- */
+.md-typeset .grid.cards {
+  gap: 1rem;
+}
+
+.md-typeset .grid.cards > * {
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.md-typeset .grid.cards > *:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- figure + caption ---------- */
+.md-typeset figure {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.md-typeset figcaption {
+  font-size: 0.9rem;
+  color: var(--md-default-fg-color--light);
+  margin-top: 0.5rem;
+}
+
+/* ---------- split text/image ---------- */
+.split {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.split__text,
+.split__image {
+  flex: 1 1 320px;
+}
+
+/* ---------- results gallery ---------- */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.gallery img {
+  width: 100%;
+  height: auto;
+}
