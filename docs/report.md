@@ -1,4 +1,17 @@
-# Project
+# Project Report
+
+---
+
+## Overview
+This project investigates a challenging form of spatial reasoning under limited visual input, where depth and scale must be inferred rather than directly measured. By using FPS gameplay as a controlled yet dynamic testbed, the work contributes to understanding how computer vision systems perform in scenarios analogous to real-world applications such as surveillance and sports analytics, where only monocular video is available.
+
+We ask of the follow questions:
+
+* How accurately can player positions be approximated in a bird’s-eye-view representation using only monocular video input?
+* How do simple geometric heuristics compare to learned monocular depth estimation models for BEV reconstruction in FPS environments?
+* To what extent does temporal tracking improve the stability and accuracy of spatial estimates?
+
+---
 
 ## Data collection
 ### Dataset sources
@@ -45,9 +58,9 @@
 
 <div class="gallery" markdown>
 
-![Result 1](assets/result_1.gif)
-![Result 2](assets/result_2.png)
-![Result 3](assets/result_3.png)
+![Result 1](assets/placeholder.png)
+![Result 2](assets/placeholder.png)
+![Result 3](assets/placeholder.png)
 
 </div>
 
@@ -63,7 +76,7 @@
 
 ### Detection
 
-We use YOLOv? fine-tuned on annotated gameplay frames to detect player
+Why use YOLOv? fine-tuned on annotated gameplay frames to detect player
 bounding boxes with high recall under motion blur and occlusion.
 
 </div>

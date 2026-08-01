@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block content %}
-  {% if page.title == "Monocular BEV Localization" %}
+{% block tabs %}
+  {{ super() }}
+
+  {% if page.is_homepage %}
     {% include "partials/hero.html" %}
   {% endif %}
-
-  {{ super() }}
 {% endblock %}
 
-{% block styles %}
+{% block content %}
   {{ super() }}
 {% endblock %}

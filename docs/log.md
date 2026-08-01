@@ -1,6 +1,8 @@
 # Development Log
 
 ## Week 1
+??? tip "See mkdocs materials for types of admonition"
+    and expandable like this
 
 ## Week 2
 

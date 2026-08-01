@@ -25,43 +25,109 @@ img {
   border-radius: 12px;
 }
 
+
 /* ---------- hero ---------- */
 .hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 550px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   text-align: center;
-  padding: 4rem 1rem 3rem;
+}
+
+.hero__background {
+  position: absolute;
+  inset: 0;
+
+  background-image: url("../assets/hero.png");
+  background-size: cover;
+  background-position: center;
+
+  z-index: 0;
+}
+
+.hero__background::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      rgba(0,0,0,.85),
+      rgba(0,0,0,.45)
+    );
 }
 
 .hero__inner {
-  max-width: 720px;
-  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  padding: 4rem 2rem;
+  margin: auto;
 }
 
 .hero__eyebrow {
   display: inline-block;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--md-primary-fg-color);
-  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 1rem;
 }
 
 .hero__title {
-  font-size: 2.4rem;
-  font-weight: 700;
-  margin: 0 0 1rem;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0 0 1.25rem;
+  color: white;
 }
 
 .hero__subtitle {
-  font-size: 1.1rem;
-  color: var(--md-default-fg-color--light);
-  margin-bottom: 2rem;
+  max-width: 750px;
+  margin: 0 auto 2rem;
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.88);
 }
 
 .hero__buttons {
   display: flex;
-  gap: 1rem;
   justify-content: center;
+  align-items: center;
+  gap: 1rem;
   flex-wrap: wrap;
+}
+
+.hero__buttons .md-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.6rem 1.3rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  color: white;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.hero__buttons .md-button:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 20px rgba(0,0,0,0.25);
+}
+
+.hero__buttons .md-button--primary {
+  background-color: var(--md-primary-fg-color);
+  color: white;
+  border-color: var(--md-primary-fg-color);
 }
 
 /* ---------- section divider ---------- */
