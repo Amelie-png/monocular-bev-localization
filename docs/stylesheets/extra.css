@@ -189,3 +189,204 @@ img {
   width: 100%;
   height: auto;
 }
+
+/* ---------- pipeline flowchart ---------- */
+
+.pipeline-svg {
+  width: 100%;
+  max-width: 1200px;
+  display: block;
+  margin: 2rem auto;
+}
+
+.pipeline-node rect {
+  fill: var(--md-primary-fg-color);
+  stroke: var(--md-default-bg-color);
+  stroke-width: 2;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pipeline-node text {
+  fill: white;
+  font-size: 13px;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+}
+
+.pipeline-node:hover rect {
+  opacity: 0.85;
+}
+
+.pipeline-arrow {
+  stroke: var(--md-default-fg-color);
+  stroke-width: 2;
+  fill: none;
+  color: var(--md-default-fg-color);
+}
+
+/* tooltip */
+.pipeline-tooltip {
+  position: absolute;
+  transform: translate(-50%, -100%) translateY(-8px);
+  background: var(--md-default-fg-color);
+  color: var(--md-default-bg-color);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.1s ease;
+  z-index: 1000;
+}
+
+.pipeline-tooltip--visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* color variants */
+.pipeline-color-blue > *:not(text):not(title) {
+  fill: #1976d2;
+}
+
+.pipeline-color-green > *:not(text):not(title) {
+  fill: #43a047;
+}
+
+.pipeline-color-purple > *:not(text):not(title) {
+  fill: #7e57c2;
+}
+
+.pipeline-color-teal > *:not(text):not(title) {
+  fill: #00897b;
+}
+
+.pipeline-color-orange > *:not(text):not(title) {
+  fill: #fb8c00;
+}
+
+.pipeline-color-red > *:not(text):not(title) {
+  fill: #e53935;
+}
+
+.pipeline-color-wine > *:not(text):not(title) {
+  fill: #d32f2f;
+}
+
+.pipeline-color-grey > *:not(text):not(title) {
+  fill: #858585;
+}
+
+.pipeline-node polygon {
+  stroke: var(--md-default-bg-color);
+  stroke-width: 2;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pipeline-node:hover polygon {
+  opacity: 0.85;
+}
+
+/* ---------- footer ---------- */
+
+.md-footer-meta__inner {
+  display: flex;
+}
+
+.md-copyright {
+  flex: 1;
+  width: 100%;
+}
+
+.md-copyright__inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+}
+
+/* ---------- image carousel ---------- */
+
+.image-carousel {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 2rem auto;
+}
+
+.image-carousel img {
+  display: none;
+  width: 100%;
+  border-radius: 12px;
+}
+
+.image-carousel img.active {
+  display: block;
+}
+
+/* Navigation buttons */
+
+.image-carousel button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 42px;
+  height: 42px;
+
+  border: none;
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  background: rgba(0,0,0,.6);
+  color: white;
+
+  font-size: 1.25rem;
+}
+
+.image-carousel button:hover {
+  background: rgba(0,0,0,.8);
+}
+
+.image-carousel .prev {
+  left: 12px;
+}
+
+.image-carousel .next {
+  right: 12px;
+}
+
+/* Dots */
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+
+  gap: .5rem;
+
+  margin-top: 1rem;
+}
+
+.carousel-dot {
+  width: 10px;
+  height: 10px;
+
+  border-radius: 50%;
+
+  cursor: pointer;
+
+  background: #999;
+}
+
+.carousel-dot.active {
+  background: var(--md-primary-fg-color);
+}

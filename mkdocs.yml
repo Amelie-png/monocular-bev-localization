@@ -14,11 +14,10 @@ theme:
     - navigation.tabs
     - navigation.top
     - navigation.footer
-    - navigation.instant
+    - navigation.instant.preview
     - navigation.tracking
     - navigation.indexes
     - content.code.copy
-    - content.tabs.link
     - toc.follow
     - search.highlight
     - search.suggest
@@ -45,9 +44,13 @@ repo_url: https://github.com/Amelie-png/monocular-bev-localization
 
 nav:
   - Home: index.md
-  - Project Report: report.md
+  - Project Report:
+      - Data Collection: report/data_collection.md
+      - Methodology: report/methodology.md
+      - Results: report/results.md
+      - Discussion: report/discussion.md
+      - Conclusion: report/conclusion.md
   - Development Log: log.md
-  - ML Analysis: analysis.md
 
 markdown_extensions:
   - attr_list
@@ -62,9 +65,17 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+        - name: pipeline
+          class: pipeline-diagram
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
 
 extra_javascript:
   - https://unpkg.com/mermaid@11/dist/mermaid.min.js
+  - https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js
+  - javascripts/pipeline.js
+  - javascripts/image_carousel.js
 
 extra_css:
   - stylesheets/extra.css
