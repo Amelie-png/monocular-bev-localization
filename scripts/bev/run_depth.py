@@ -23,12 +23,12 @@ def run_depth(output_dir=Path("data/processed/depths"), video_names=None, force=
   print("Estimator loaded")
 
   tracking_files = list(tracking_dir.glob("*_trackings.parquet"))
-  if video_names:
-    todo = filter_missing(video_names, depth_output_path, force=force)
-    report_skip("depth", video_names, todo)
-    tracking_files = [f for f in tracking_files if f.stem.replace("_trackings", "") in todo]
+  all_names = video_names if video_names else [f.stem.replace("_trackings", "") for f in tracking_files]
+  todo = filter_missing(all_names, depth_output_path, force=force)
+  report_skip("depth", all_names, todo)
+  tracking_files = [f for f in tracking_files if f.stem.replace("_trackings", "") in todo]
 
-  for tracking_file in tracking_files:
+  for tracking_file in tqdm(tracking_files, desc="Videos", unit="video"):
     video_name = tracking_file.stem.replace('_trackings', '')
     print(f"\n{'='*60}")
     print(f"Processing: {video_name}")
@@ -55,9 +55,12 @@ def run_depth(output_dir=Path("data/processed/depths"), video_names=None, force=
     depth_file = None
     for idx, frame_id in enumerate(tqdm(frame_ids, desc=video_name, unit="frame", leave=False)):
       depth_file = video_depth_dir / f"frame_{frame_id:06d}.npy"
+      vis_file = vis_dir / f"{video_name}_frame_{frame_id:05d}.png"
+      need_depth = force or not depth_file.exists()
+      need_vis = (idx in sample_ids) and (force or not vis_file.exists())
 
       # Per-frame resume: skip frames already computed, even if the video-level .done marker isn't set yet (e.g. crashed mid-video)
-      if depth_file.exists() and not force:
+      if not need_depth and not need_vis:
         continue
 
       frame_rows = tracking_df[tracking_df["frame_id"] == frame_id]

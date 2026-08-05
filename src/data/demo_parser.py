@@ -6,11 +6,9 @@ FIELDS = [
   "player_steamid",
   "player_name",
   "is_alive",
-  "team_name",
-  "total_rounds_played",  # Which round (0-indexed)
-  "game_time",            # Time in seconds since match start
-  "round_in_progress",    # Is round active
-  "is_freeze_period",      # Is it freeze time
+  "total_rounds_played", # Which round (0-indexed)
+  "game_time", # Time in seconds since match start
+  "is_freeze_period", # Is it freeze time
   "pitch",
   "yaw"
 ]
@@ -55,8 +53,9 @@ def clean_demo_data(df):
     "game_time",
     "player_steamid",
     "player_name",
-    "team_name",
-    "x", "y", "z"
+    "x", "y", "z",
+    "pitch",
+    "yaw"
   ]
 
   return filtered[columns].reset_index(drop=True)

@@ -18,7 +18,6 @@ class MiDaSEstimator:
     self.model = DPTForDepthEstimation.from_pretrained(model_name).to(self.device)
     self.model.eval()
   
-  @torch.no_grad()
   @torch.inference_mode()
   def estimate(self, image):
     """

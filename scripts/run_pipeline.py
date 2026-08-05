@@ -12,7 +12,7 @@ def run_pipeline(config, videos, force=False):
   print(f"Running complete pipeline on {len(videos)} video(s)")
   print(f"{'='*60}")
 
-  run_frame_extraction(fps=None, video_names=videos, force=force) # TODO add fps config
+  run_frame_extraction(fps=None, video_names=videos, force=force) # Using native fps
   run_detection(config=config.detection, video_names=videos, force=force)
   run_tracking(config=config.tracking, video_names=videos, force=force)
   run_depth(video_names=videos, force=force)
@@ -21,26 +21,6 @@ def run_pipeline(config, videos, force=False):
 
   build_trajectory(videos, variant="heuristic", force=force)
   build_trajectory(videos, variant="midas", force=force)
-
-  # TODO trajectory + visualization
-  """
-  for v in videos:
-    for variant in ("heuristic", "midas"):
-      build_trajectories(v, bev_variant=variant)
-      draw_trajectories(
-        pitch_template_path="assets/pitch_template.png",
-        trajectories_path=f"outputs/trajectories/{v}_{variant}.json",
-        out_path=f"outputs/trajectories/{v}_{variant}.png",
-      )
-
-    combine_videos_grid(
-      [f"outputs/viz/{v}_tracked.mp4",
-        f"outputs/viz/{v}_bev_heuristic.mp4",
-        f"outputs/viz/{v}_bev_midas.mp4"],
-      f"outputs/viz/{v}_combined.mp4",
-      layout="hstack",
-    )
-  """
 
   print("\nPipeline complete.")
 

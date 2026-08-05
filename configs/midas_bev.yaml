@@ -1,4 +1,4 @@
-depth_window: 5
+depth_window: 3
 low_pct: 1.0
 high_pct: 95.0
 fov_scale: 1.15
