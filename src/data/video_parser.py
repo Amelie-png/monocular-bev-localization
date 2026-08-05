@@ -33,6 +33,10 @@ def extract_frames(video_path, output_dir, fps_override=None):
   frame_id = 0
 
   native_fps = cap.get(cv2.CAP_PROP_FPS)
+  if not native_fps or native_fps <= 0:
+    cap.release()
+    raise ValueError(f"Could not read a valid FPS for {video_path} — file may be corrupted")
+
   total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
   print(f"Processing {video_path.name}")
