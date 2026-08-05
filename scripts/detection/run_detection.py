@@ -46,10 +46,10 @@ def run_detection(config, output_dir=Path("data/processed/detections"), video_na
   print("Model loaded")
 
   metadata_files = list(frame_metadata_dir.glob("*_metadata.parquet"))
-  if video_names:
-    todo = filter_missing(video_names, detection_output_path, force=force)
-    report_skip("detection", video_names, todo)
-    metadata_files = [f for f in metadata_files if f.stem.replace("_metadata", "") in todo]
+  all_names = video_names if video_names else [f.stem.replace("_metadata", "") for f in metadata_files]
+  todo = filter_missing(all_names, detection_output_path, force=force)
+  report_skip("detection", all_names, todo)
+  metadata_files = [f for f in metadata_files if f.stem.replace("_metadata", "") in todo]
 
   # Process each video's frames
   for metadata_file in metadata_files:

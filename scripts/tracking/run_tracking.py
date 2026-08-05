@@ -33,10 +33,10 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
   print("Tracker loaded")
 
   detection_files = list(detections_dir.glob("*_detections.parquet"))
-  if video_names:
-    todo = filter_missing(video_names, tracking_output_path, force=force)
-    report_skip("tracking", video_names, todo)
-    detection_files = [f for f in detection_files if f.stem.replace("_detections", "") in todo]
+  all_names = video_names if video_names else [f.stem.replace("_detections", "") for f in detection_files]
+  todo = filter_missing(all_names, tracking_output_path, force=force)
+  report_skip("tracking", all_names, todo)
+  detection_files = [f for f in detection_files if f.stem.replace("_detections", "") in todo]
 
   # Process each detection file
   for detection_file in tqdm(detection_files, desc="Videos", unit="video"):
@@ -56,10 +56,9 @@ def run_tracking(config, output_dir=Path("data/processed/trackings"), video_name
       frame_rows = detection_df[detection_df["frame_id"] == frame_id]
       frame_path = frame_rows.iloc[0]["frame_path"]
 
-      # Load image
-      image = cv2.imread(frame_path)
-      if image is None:
-        print(f"Could not load {frame_path}")
+      # Check existence of image
+      if not Path(frame_path).exists():
+        print(f"Missing frame file: {frame_path}")
         continue
 
       detections = []
@@ -142,11 +141,11 @@ if __name__ == "__main__":
 
   # Override with command line args if provided
   if args.activation is not None:
-    config.activation = args.activation
+    config.track_activation_threshold = args.activation
   if args.lost_buffer is not None:
-    config.lost_buffer = args.lost_buffer
+    config.lost_track_buffer = args.lost_buffer
   if args.consecutive is not None:
-    config.consecutive = args.consecutive
+    config.minimum_consecutive_frames = args.consecutive
 
   output_dir = Path(args.output) if args.output else Path("data/processed/trackings")
   

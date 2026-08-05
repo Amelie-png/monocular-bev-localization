@@ -23,19 +23,8 @@ class PlayerTracker:
     if len(detections) == 0:
       return []
 
-    xyxy = []
-    confidence = []
-
-    xyxy = np.asarray(
-      [d["bbox"] for d in detections],
-      dtype=np.float32
-    )
-
-    confidence = np.asarray(
-      [d["confidence"] for d in detections],
-      dtype=np.float32
-    )
-
+    xyxy = np.asarray([d["bbox"] for d in detections], dtype=np.float32)
+    confidence = np.asarray([d["confidence"] for d in detections], dtype=np.float32)
     class_id = np.zeros(len(detections), dtype=np.int32)
 
     detections_sv = Detections(

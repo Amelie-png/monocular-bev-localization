@@ -1,4 +1,4 @@
 from .byte_tracker import PlayerTracker
-from .config import TrackConfig, ByteTrackConfig
+from .config import ByteTrackConfig
 
-__all__ = ['PlayerTracker', 'TrackConfig', 'ByteTrackConfig']
+__all__ = ['PlayerTracker', 'ByteTrackConfig']

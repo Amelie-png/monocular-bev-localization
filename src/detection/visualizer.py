@@ -1,4 +1,6 @@
 import cv2
+from pathlib import Path
+import tqdm
 
 class DetectionVisualizer:
   """
@@ -84,9 +86,10 @@ class DetectionVisualizer:
     
     # Create video writer
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     out = cv2.VideoWriter(str(output_path), fourcc, fps, (width, height))
     
-    for frame_path, detections in zip(frame_paths, detections_list):
+    for frame_path, detections in tqdm(zip(frame_paths, detections_list), total=len(frame_paths), desc="Rendering detection video", unit="frame", leave=False):
       # Load frame
       frame = cv2.imread(str(frame_path))
       if frame is None:

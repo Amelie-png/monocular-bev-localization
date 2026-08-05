@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+# ONly used for DeepSort Tracker, not used in current pipeline
 @dataclass
 class TrackConfig:
   """
