@@ -1,6 +1,5 @@
 from pathlib import Path
 import pandas as pd
-import cv2
 import yaml
 from tqdm import tqdm
 
