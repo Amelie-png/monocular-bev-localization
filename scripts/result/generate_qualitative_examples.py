@@ -63,10 +63,10 @@ def generate_all_examples(variant="heuristic", eval_dir="outputs/eval"):
       if path:
         saved.append(path)
 
-  anchors = [
-    ("match_2_round_2", "best_overall"),
-    ("match_3_round_2", "midas_worst_round"),
-  ]
+  anchors = [("match_2_round_2", "best_overall")]
+  if variant == "midas":
+    anchors.append(("match_3_round_2", "midas_worst_round"))
+
   for video_name, role in anchors:
     sub = breakdown_df[breakdown_df["video_name"] == video_name]
     if sub.empty:

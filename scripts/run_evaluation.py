@@ -41,6 +41,10 @@ def run_evaluation(video_names, variant="heuristic", out_dir="outputs/eval"):
     all_traj.append(traj); all_rel.append(rel); all_euc.append(merged)
     print(f"[{v}] scale={scale:.4f}, mean euclidean_error={merged['euclidean_error'].mean():.2f}")
 
+  if not all_euc:
+    print(f"[{variant}] No videos produced usable eval rows.")
+    return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+
   traj_df = pd.concat(all_traj, ignore_index=True)
   rel_df = pd.concat(all_rel, ignore_index=True)
   euc_df = pd.concat(all_euc, ignore_index=True)
