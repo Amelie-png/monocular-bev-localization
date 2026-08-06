@@ -47,11 +47,11 @@ def run_bev(
   step_label = "bev-midas" if midas else "bev-heuristic"
 
   tracking_files = list(tracking_dir.glob("*_trackings.parquet"))
-  if video_names:
-    output_path_fcn = midas_output_path if midas else heuristic_output_path
-    todo = filter_missing(video_names, output_path_fcn, force=force)
-    report_skip(f"bev-{step_label}", video_names, todo)
-    tracking_files = [f for f in tracking_files if f.stem.replace("_trackings", "") in todo]
+  all_names = video_names if video_names else [f.stem.replace("_trackings", "") for f in tracking_files]
+  output_path_fcn = midas_output_path if midas else heuristic_output_path
+  todo = filter_missing(all_names, output_path_fcn, force=force)
+  report_skip(f"bev-{step_label}", all_names, todo)
+  tracking_files = [f for f in tracking_files if f.stem.replace("_trackings", "") in todo]
 
   # Process each tracking file
   for tracking_file in tqdm(tracking_files, desc="Videos", unit="video"):

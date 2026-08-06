@@ -49,7 +49,7 @@ class BevEstimator:
     bbox_height = max(1.0, y2 - y1)
 
     return self.depth_scale / bbox_height
-  
+
   def extract_depth(self, depth_map, bbox, depth_min=None, depth_max=None):
     """
     Extract player depth from MiDaS depth map.
@@ -57,39 +57,29 @@ class BevEstimator:
     Uses the median depth around the player's feet.
     """
     x1, _, x2, y2 = bbox
-
     cx = int((x1 + x2) / 2)
     cy = int(y2 - 5)
 
     h, w = depth_map.shape
-
     patch_half = self.depth_window // 2
+    px0 = max(0, cx - patch_half)
+    px1 = min(w, cx + patch_half + 1)
+    py0 = max(0, cy - patch_half)
+    py1 = min(h, cy + patch_half + 1)
 
-    x0 = max(0, cx - patch_half)
-    x1 = min(w, cx + patch_half + 1)
-
-    y0 = max(0, cy - patch_half)
-    y1 = min(h, cy + patch_half + 1)
-
-    patch = depth_map[y0:y1, x0:x1]
-
+    patch = depth_map[py0:py1, px0:px1]
     if patch.size == 0:
       return 0.0
-    
-    depth = float(np.median(patch))
 
-    depth_min = float(depth_map.min())
-    depth_max = float(depth_map.max())
+    depth = float(np.median(patch))
 
     if depth_min is None or depth_max is None:
       depth_min, depth_max = float(depth_map.min()), float(depth_map.max())
-    
+
     depth = (depth - depth_min) / (depth_max - depth_min + 1e-8)
     depth = np.clip(depth, 0.0, 1.0)
 
-    distance = (1.0 - depth) * 300
-
-    return distance
+    return (1.0 - depth) * 300
   
   def project(self, bbox, player_depth):
     """

@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+from pathlib import Path
+from tqdm import tqdm
 
 class BevVisualizer:
   def __init__(self, color=(0, 255, 0), scale=1):
@@ -57,17 +59,16 @@ class BevVisualizer:
       output_path: Where to save video
       fps: Frame rate
     """
-    # Read first frame to get dimensions
     height, width = 800, 800 # set dimension here
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
     # Create video writer
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     out = cv2.VideoWriter(str(output_path), fourcc, fps, (width, height))
     
-    for estimation in estimation_list:
+    for estimation in tqdm(estimation_list, desc="Rendering BEV video", unit="frame", leave=False):
       # Draw estimations
       image = self.draw_players(estimation, height, width)
-      
       # Write to video
       out.write(image)
     
