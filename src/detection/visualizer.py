@@ -2,6 +2,8 @@ import cv2
 from pathlib import Path
 import tqdm
 
+from src.utils import track_color
+
 class DetectionVisualizer:
   """
   Visualize detection results on images.
@@ -31,9 +33,11 @@ class DetectionVisualizer:
     for det in detections:
       x1, y1, x2, y2 = map(int, det["bbox"])
       confidence = det["confidence"]
+
+      color = track_color(det["track_id"]) if "track_id" in det else self.color
       
       # Draw rectangle
-      cv2.rectangle(annotated, (x1, y1), (x2, y2), self.color, self.thickness)
+      cv2.rectangle(annotated, (x1, y1), (x2, y2), color, self.thickness)
 
       label = f"{det['class_name']} {confidence:.2f}"
       if "track_id" in det:
@@ -49,7 +53,7 @@ class DetectionVisualizer:
         annotated,
         (x1, y1 - label_size[1] - 10),
         (x1 + label_size[0], y1),
-        self.color,
+        color,
         -1  # Filled
       )
       

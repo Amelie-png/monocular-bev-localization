@@ -3,6 +3,8 @@ import numpy as np
 from pathlib import Path
 from tqdm import tqdm
 
+from src.utils import track_color
+
 class BevVisualizer:
   def __init__(self, color=(0, 255, 0), scale=1):
     """
@@ -46,7 +48,8 @@ class BevVisualizer:
       bev_y = estimation["bev_y"]
       draw_x = int(camera_x + bev_x * self.scale)
       draw_y = int(camera_y - bev_y * self.scale)
-      cv2.circle(image, (draw_x, draw_y), 4, self.color, -1)
+      color = track_color(estimation["track_id"]) if "track_id" in estimation else self.color
+      cv2.circle(image, (draw_x, draw_y), 4, color, -1)
 
     return image
   

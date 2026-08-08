@@ -14,14 +14,15 @@ def render_bev_video(video_name, variant, transform_fn=None, minimap=False, mini
   """
   bev_dir = Path(f"data/processed/bev/{variant}")
   df = pd.read_parquet(bev_dir / f"{video_name}_estimations.parquet")
-  match_number = video_name.split('_')[1]
+  match_name = "_".join(video_name.split("_")[:2])
 
+  # Minimap coming in future works, not functional right now
   if minimap and transform_fn is not None:
     sync_df = pd.read_parquet(f"data/processed/sync/{video_name}_sync.parquet")
     df = df.merge(sync_df[["frame_id", "cam_x", "cam_y", "yaw_deg"]], on="frame_id", how="inner")
     wx, wy = transform_fn(df["bev_x"].values, df["bev_y"].values, df["cam_x"].values, df["cam_y"].values, df["yaw_deg"].values)
     df = df.assign(plot_x=wx, plot_y=wy)
-    visualizer = BevVisualizer(background=f"data/minimap/{match_number}.png", bounds=minimap_bounds)
+    visualizer = BevVisualizer(background=f"data/minimap/{match_name}.png", bounds=minimap_bounds)
   else:
     df = df.assign(plot_x=df["bev_x"], plot_y=df["bev_y"])
     visualizer = BevVisualizer(scale=3)
@@ -34,7 +35,7 @@ def render_bev_video(video_name, variant, transform_fn=None, minimap=False, mini
       for _, row in g.iterrows()
     ])
 
-  out_path = Path(f"outputs/viz/{video_name}_{variant}_bev.mp4")
+  out_path = Path(f"outputs/bev/visualization/{video_name}_{variant}_bev.mp4")
   out_path.parent.mkdir(parents=True, exist_ok=True)
   visualizer.create_bev_video(frame_estimations, out_path, fps=30)
   return out_path
@@ -55,16 +56,20 @@ if __name__ == "__main__":
   from src.utils import load_split_file
   videos = load_split_file("data/splits/train.txt")
 
-  # TODO: hardcode calibrated convention from evaluation
-  transform_fn = make_transform("fwd_cos_sin_negx", scale=1.0)  # scale unused
+  # Configure once minimap in use
+  transform_fn = make_transform("fwd_cos_sin_negx", scale=1.0)
 
   for v in tqdm(videos, desc="Rendering"):
     heur = render_bev_video(v, "heuristic")
     midas = render_bev_video(v, "midas")
-    tracked = Path(f"outputs/viz/{v}_tracked.mp4")
+    tracked = Path(f"outputs/tracking/{v}_tracked.mp4")
+
+    if not tracked.exists():
+      print(f"[{v}] missing tracked video at {tracked}, skipping combined render")
+      continue
 
     combine_videos_grid(
       [tracked, heur, midas],
-      Path(f"outputs/viz/{v}_combined.mp4"),
+      Path(f"outputs/pipeline/{v}_combined.mp4"),
       layout="hstack",
     )
