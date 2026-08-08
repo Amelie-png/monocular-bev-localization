@@ -9,7 +9,7 @@ def evaluate_detections(
     video_names, 
     output_video=True, 
     detections_dir=Path("data/processed/detections"),
-    output_dir=Path("outputs/detection_videos"),
+    output_dir=Path("outputs/tuning/detection_videos"),
     metrics_dir=Path("outputs/detection_metrics"),):
   """
   Evaluate detections: compute metrics and create visualizations.
@@ -20,7 +20,8 @@ def evaluate_detections(
   """
   # Paths
   frame_metadata_dir = Path("data/processed/frame_metadata")
-  output_dir.mkdir(parents=True, exist_ok=True)
+  if output_video:
+    output_dir.mkdir(parents=True, exist_ok=True)
   metrics_dir.mkdir(parents=True, exist_ok=True)
 
   visualizer = DetectionVisualizer(color=(0, 255, 0), thickness=2)
@@ -108,7 +109,7 @@ if __name__ == "__main__":
   parser.add_argument("--videos", type=str, nargs="+", default=None, help="Specific videos to evaluate")
   parser.add_argument("--no-video", action="store_true", help="Skip video creation")
   parser.add_argument("--detections-dir", type=str, default="data/processed/detections")
-  parser.add_argument("--output-dir", type=str, default="outputs/detection_videos")
+  parser.add_argument("--output-dir", type=str, default="outputs/tuning/detection_videos")
   parser.add_argument("--metrics-dir", type=str, default="outputs/detection_metrics")
   
   args = parser.parse_args()
