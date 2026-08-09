@@ -8,11 +8,11 @@ from src.bev import BevEstimator, BevConfig
 from src.depth import compute_depth_normalization_stats
 from src.utils import filter_missing, report_skip
 
-def heuristic_output_path(video_name):
-  return Path(f"data/processed/bev/heuristic/{video_name}_estimations.parquet")
+def heuristic_output_path(video_name, output_dir="data/processed/bev/heuristic"):
+  return Path(output_dir) / f"{video_name}_estimations.parquet"
 
-def midas_output_path(video_name):
-  return Path(f"data/processed/bev/midas/{video_name}_estimations.parquet")
+def midas_output_path(video_name, output_dir="data/processed/bev/midas"):
+  return Path(output_dir) / f"{video_name}_estimations.parquet"
 
 def load_config(config_path=None):
   """
@@ -48,7 +48,8 @@ def run_bev(
 
   tracking_files = list(tracking_dir.glob("*_trackings.parquet"))
   all_names = video_names if video_names else [f.stem.replace("_trackings", "") for f in tracking_files]
-  output_path_fcn = midas_output_path if midas else heuristic_output_path
+  def output_path_fcn(v):
+    return (midas_output_path(v, output_dir) if midas else heuristic_output_path(v, output_dir))
   todo = filter_missing(all_names, output_path_fcn, force=force)
   report_skip(f"bev-{step_label}", all_names, todo)
   tracking_files = [f for f in tracking_files if f.stem.replace("_trackings", "") in todo]

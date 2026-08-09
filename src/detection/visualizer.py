@@ -1,6 +1,6 @@
 import cv2
 from pathlib import Path
-import tqdm
+from tqdm import tqdm
 
 from src.utils import track_color
 

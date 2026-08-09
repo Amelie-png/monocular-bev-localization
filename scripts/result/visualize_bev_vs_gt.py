@@ -4,7 +4,7 @@ import pandas as pd
 from pathlib import Path
 from tqdm import tqdm
 
-def render_bev_vs_gt_video(video_name, variant, eval_dir="outputs/eval", out_dir="outputs/viz", canvas_size=800, fps=30, padding_ratio=0.1):
+def render_bev_vs_gt_video(video_name, variant, eval_dir="outputs/eval", out_dir="outputs/videos/bev_vs_gt", canvas_size=800, fps=30, padding_ratio=0.1):
   df = pd.read_parquet(Path(eval_dir) / f"{variant}_euclidean_error.parquet")
   df = df[df["video_name"] == video_name]
   if df.empty:

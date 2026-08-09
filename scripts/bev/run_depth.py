@@ -15,7 +15,7 @@ def run_depth(output_dir=Path("data/processed/depths"), video_names=None, force=
   tracking_dir = Path("data/processed/trackings")
   output_dir.mkdir(parents=True, exist_ok=True)
 
-  vis_dir = Path("outputs/depths/visualizations")
+  vis_dir = Path("outputs/images/depths")
   vis_dir.mkdir(parents=True, exist_ok=True)
 
   print("Loading MiDaS Estimator")

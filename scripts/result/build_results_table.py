@@ -16,6 +16,6 @@ def summarize(label, eval_dir="outputs/eval"):
   }
 
 if __name__ == "__main__":
-  rows = [summarize("heuristic"), summarize("midas")]
+  rows = [summarize("heuristic"), summarize("midas"), summarize("heuristic_notrack")]
   pd.DataFrame(rows).to_csv("outputs/eval/results_table.csv", index=False)
   print(pd.DataFrame(rows).to_string(index=False))

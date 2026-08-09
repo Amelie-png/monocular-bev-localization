@@ -31,7 +31,7 @@ def compute_world_coords(video_name, variant, eval_dir="outputs/eval", bev_dir=N
   return bev_df.assign(world_x=wx, world_y=wy)
 
 
-def render_trajectory_video(video_name, variant, out_dir="outputs/trajectory", canvas_size=800, decay=0.90, fps=30, padding_ratio=0.1):
+def render_world_trajectory(video_name, variant, out_dir="outputs/videos/trajectories_world", canvas_size=800, decay=0.90, fps=30, padding_ratio=0.1):
   df = compute_world_coords(video_name, variant)
   if df.empty:
     print(f"[{video_name}] no world-coordinate rows, skipping")
@@ -85,5 +85,5 @@ if __name__ == "__main__":
   from src.utils import load_split_file
   videos = load_split_file("data/splits/train.txt")
   for v in videos:
-    render_trajectory_video(v, "heuristic")
-    render_trajectory_video(v, "midas")
+    render_world_trajectory(v, "heuristic")
+    render_world_trajectory(v, "midas")

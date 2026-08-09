@@ -9,8 +9,8 @@ def evaluate_trackings(
     video_names, 
     output_video=True, 
     trackings_dir=Path("data/processed/trackings"),
-    output_dir=Path("outputs/tuning/tracking_videos"),
-    metrics_dir=Path("outputs/tracking_metrics"),):
+    output_dir=Path("outputs/tuning/tracking/videos"),
+    metrics_dir=Path("outputs/tuning/tracking/metrics"),):
   """
   Evaluate tracking: compute metrics and create visualizations.
     
@@ -110,8 +110,8 @@ if __name__ == "__main__":
   parser.add_argument("--videos", type=str, nargs="+", default=None, help="Specific videos to evaluate")
   parser.add_argument("--no-video", action="store_true", help="Skip video creation")
   parser.add_argument("--trackings-dir", type=str, default="data/processed/trackings")
-  parser.add_argument("--output-dir", type=str, default="outputs/tuning/tracking_videos")
-  parser.add_argument("--metrics-dir", type=str, default="outputs/tracking_metrics")
+  parser.add_argument("--output-dir", type=str, default="outputs/tuning/tracking/videos")
+  parser.add_argument("--metrics-dir", type=str, default="outputs/tuning/tracking/metrics")
   
   args = parser.parse_args()
 

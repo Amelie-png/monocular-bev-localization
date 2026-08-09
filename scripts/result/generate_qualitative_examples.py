@@ -21,7 +21,7 @@ def select_examples(breakdown_df, condition, n_worst=3, n_contrast=1):
 def draw_annotated_frame(
     video_name, frame_id, euclidean_error, role,
     tracking_dir="data/processed/trackings",
-    out_dir="outputs/qualitative"):
+    out_dir="outputs/images/qualitative"):
   tracking_df = pd.read_parquet(Path(tracking_dir) / f"{video_name}_trackings.parquet")
   frame_rows = tracking_df[tracking_df["frame_id"] == frame_id]
   if frame_rows.empty:
@@ -63,9 +63,12 @@ def generate_all_examples(variant="heuristic", eval_dir="outputs/eval"):
       if path:
         saved.append(path)
 
-  anchors = [("match_2_round_2", "best_overall")]
+  per_video_error = breakdown_df.groupby("video_name")["euclidean_error"].mean()
+  best_video = per_video_error.idxmin()
+  worst_video = per_video_error.idxmax()
+  anchors = [(best_video, "best_overall")]
   if variant == "midas":
-    anchors.append(("match_3_round_2", "midas_worst_round"))
+    anchors.append((worst_video, f"{variant}_worst_round"))
 
   for video_name, role in anchors:
     sub = breakdown_df[breakdown_df["video_name"] == video_name]
