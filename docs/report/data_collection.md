@@ -206,7 +206,7 @@ The recorded replay videos can be accessed in game with the corresponding demo f
 
 <figure>
   <video controls width="100%">
-    <source src="/assets/videos/raw_video.mp4" type="video/mp4">
+    <source src="../assets/videos/raw_video.mp4" type="video/mp4">
   </video>
   <figcaption>
     <strong>Figure 1.</strong> Raw recorded gameplay video.
