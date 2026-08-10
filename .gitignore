@@ -1,14 +1,23 @@
 # Python
-venv/
 __pycache__/
-*.pyc
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
 
 # Data
-data/raw/
-data/processed/
-
-# Outputs
+data/
 outputs/
 
-# OS junk
+# MkDocs
+site/
+
+# OS
 .DS_Store
+
+# IDE
+.vscode/
+.idea/
