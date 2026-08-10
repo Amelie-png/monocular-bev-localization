@@ -46,3 +46,8 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Debug generated URLs
+        run: |
+          grep -R "amelie-png.github.io/assets" site/ || true
+          grep -R "visualization_gallery/depths" site/ || true
