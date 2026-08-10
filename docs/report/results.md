@@ -42,7 +42,7 @@ against the training set, scored using a coverage/confidence proxy metric (harmo
 
 <figure>
   <video controls width="100%">
-    <source src="../assets/videos/detection_video.mp4" type="video/mp4">
+    <source src="/monocular-bev-localization/assets/videos/detection_video.mp4" type="video/mp4">
   </video>
   <figcaption>
     <strong>Figure 1.</strong> Detection video.
@@ -102,7 +102,7 @@ Tracking visualization video is very similar to detection video. For clearer und
 
   <figure style="flex: 1; margin: 0;">
     <video controls width="100%">
-      <source src="../assets/videos/heuristic_trajectory.mp4" type="video/mp4">
+      <source src="/monocular-bev-localization/assets/videos/heuristic_trajectory.mp4" type="video/mp4">
     </video>
     <figcaption>
       <strong>(a)</strong> Camera-relative heuristic trajectory.
@@ -111,7 +111,7 @@ Tracking visualization video is very similar to detection video. For clearer und
 
   <figure style="flex: 1; margin: 0;">
     <video controls width="100%">
-      <source src="../assets/videos/midas_trajectory.mp4" type="video/mp4">
+      <source src="/monocular-bev-localization/assets/videos/midas_trajectory.mp4" type="video/mp4">
     </video>
     <figcaption>
       <strong>(b)</strong> Camera-relative MiDaS trajectory.
@@ -222,7 +222,7 @@ The heuristic method outperformed MiDaS across **all three** evaluation metrics,
 
 <figure>
   <video controls width="100%">
-    <source src="../assets/videos/comparison_video.mp4" type="video/mp4">
+    <source src="/monocular-bev-localization/assets/videos/comparison_video.mp4" type="video/mp4">
   </video>
   <figcaption>
     <strong>Figure 2.</strong> Comparison visualization (tracked video + heuristic BEV + MiDaS BEV)
@@ -233,7 +233,7 @@ The heuristic method outperformed MiDaS across **all three** evaluation metrics,
 
   <figure style="flex: 1; margin: 0;">
     <video controls width="100%">
-      <source src="../assets/videos/heuristic_bev_vs_gt.mp4" type="video/mp4">
+      <source src="/monocular-bev-localization/assets/videos/heuristic_bev_vs_gt.mp4" type="video/mp4">
     </video>
     <figcaption>
       <strong>(a)</strong> Heuristic BEV estimation vs ground truth.
@@ -242,7 +242,7 @@ The heuristic method outperformed MiDaS across **all three** evaluation metrics,
 
   <figure style="flex: 1; margin: 0;">
     <video controls width="100%">
-      <source src="../assets/videos/midas_bev_vs_gt.mp4" type="video/mp4">
+      <source src="/monocular-bev-localization/assets/videos/midas_bev_vs_gt.mp4" type="video/mp4">
     </video>
     <figcaption>
       <strong>(b)</strong> MiDaS BEV estimation vs ground truth.
@@ -287,34 +287,34 @@ Tracking meaningfully improved both positional accuracy metrics, although the tr
 <div class="image-carousel">
 
   <video controls data-caption="Detection, match 1 round 1">
-    <source src="../assets/visualization_gallery/detection/match_1_round_1.mp4" type="video/mp4">
+    <source src="/monocular-bev-localization/assets/visualization_gallery/detection/match_1_round_1.mp4" type="video/mp4">
   </video>
   <video controls data-caption="Tracking, match 1 round 1">
-    <source src="../assets/visualization_gallery/tracking/match_1_round_1.mp4" type="video/mp4">
+    <source src="/monocular-bev-localization/assets/visualization_gallery/tracking/match_1_round_1.mp4" type="video/mp4">
   </video>
   <video controls data-caption="Combined, match 1 round 1">
-    <source src="../assets/visualization_gallery/combined/match_1_round_1.mp4" type="video/mp4">
+    <source src="/monocular-bev-localization/assets/visualization_gallery/combined/match_1_round_1.mp4" type="video/mp4">
   </video>
   <video controls data-caption="BEV vs GT (heuristic), match 1 round 1">
-    <source src="../assets/visualization_gallery/bev_vs_gt/match_1_round_1_heuristic_bev_vs_gt.mp4" type="video/mp4">
+    <source src="/monocular-bev-localization/assets/visualization_gallery/bev_vs_gt/match_1_round_1_heuristic_bev_vs_gt.mp4" type="video/mp4">
   </video>
   <video controls data-caption="BEV vs GT (MiDaS), match 1 round 1">
-    <source src="../assets/visualization_gallery/bev_vs_gt/match_1_round_1_midas_bev_vs_gt.mp4" type="video/mp4">
+    <source src="/monocular-bev-localization/assets/visualization_gallery/bev_vs_gt/match_1_round_1_midas_bev_vs_gt.mp4" type="video/mp4">
   </video>
   <video controls data-caption="Detection, match 3 round 1">
-    <source src="../assets/visualization_gallery/detection/match_3_round_1.mp4" type="video/mp4">
+    <source src="/monocular-bev-localization/assets/visualization_gallery/detection/match_3_round_1.mp4" type="video/mp4">
   </video>
   <video controls data-caption="Tracking, match 3 round 1">
-    <source src="../assets/visualization_gallery/tracking/match_3_round_1.mp4" type="video/mp4">
+    <source src="/monocular-bev-localization/assets/visualization_gallery/tracking/match_3_round_1.mp4" type="video/mp4">
   </video>
   <video controls data-caption="Combined, match 3 round 1">
-    <source src="../assets/visualization_gallery/combined/match_3_round_1.mp4" type="video/mp4">
+    <source src="/monocular-bev-localization/assets/visualization_gallery/combined/match_3_round_1.mp4" type="video/mp4">
   </video>
   <video controls data-caption="BEV vs GT (heuristic), match 3 round 1">
-    <source src="../assets/visualization_gallery/bev_vs_gt/match_3_round_1_heuristic_bev_vs_gt.mp4" type="video/mp4">
+    <source src="/monocular-bev-localization/assets/visualization_gallery/bev_vs_gt/match_3_round_1_heuristic_bev_vs_gt.mp4" type="video/mp4">
   </video>
   <video controls data-caption="BEV vs GT (MiDaS), match 3 round 1">
-    <source src="../assets/visualization_gallery/bev_vs_gt/match_3_round_1_midas_bev_vs_gt.mp4" type="video/mp4">
+    <source src="/monocular-bev-localization/assets/visualization_gallery/bev_vs_gt/match_3_round_1_midas_bev_vs_gt.mp4" type="video/mp4">
   </video>
 
 </div>
