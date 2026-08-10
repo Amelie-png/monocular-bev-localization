@@ -133,26 +133,26 @@ The pipeline produces intermediate outputs for every stage in addition to the fi
 <div class="image-carousel">
 
   <video controls data-caption="Detection, match 1 round 2">
-    <source src="{{ 'assets/visualization_gallery/detection/match_1_round_2.mp4' | url }}" type="video/mp4">
+    <source src="assets/visualization_gallery/detection/match_1_round_2.mp4" type="video/mp4">
   </video>
   <video controls data-caption="Tracking, match 1 round 2">
-    <source src="{{ 'assets/visualization_gallery/tracking/match_1_round_2.mp4' | url }}" type="video/mp4">
+    <source src="assets/visualization_gallery/tracking/match_1_round_2.mp4" type="video/mp4">
   </video>
-  <img src="{{ 'assets/visualization_gallery/depths/match_1_round_2.png' | url }}" alt="Depth map extraction, match 1 round 2">
+  <img src="assets/visualization_gallery/depths/match_1_round_2.png" alt="Depth map extraction, match 1 round 2">
   <video controls data-caption="BEV estimation (Heuristic), match 1 round 2">
-    <source src="{{ 'assets/visualization_gallery/bev/heuristic/match_1_round_2.mp4' | url }}" type="video/mp4">
+    <source src="assets/visualization_gallery/bev/heuristic/match_1_round_2.mp4" type="video/mp4">
   </video>
   <video controls data-caption="BEV estimation (MiDaS), match 1 round 2">
-    <source src="{{ 'assets/visualization_gallery/bev/midas/match_1_round_2.mp4' | url }}" type="video/mp4">
+    <source src="assets/visualization_gallery/bev/midas/match_1_round_2.mp4" type="video/mp4">
   </video>
   <video controls data-caption="Combined, match 1 round 2">
-    <source src="{{ 'assets/visualization_gallery/combined/match_1_round_2.mp4' | url }}" type="video/mp4">
+    <source src="assets/visualization_gallery/combined/match_1_round_2.mp4" type="video/mp4">
   </video>
   <video controls data-caption="BEV vs GT (Heuristic), match 1 round 2">
-    <source src="{{ 'assets/visualization_gallery/bev_vs_gt/match_1_round_2_heuristic_bev_vs_gt.mp4' | url }}" type="video/mp4">
+    <source src="assets/visualization_gallery/bev_vs_gt/match_1_round_2_heuristic_bev_vs_gt.mp4" type="video/mp4">
   </video>
   <video controls data-caption="BEV vs GT (MiDaS), match 1 round 2">
-    <source src="{{ 'assets/visualization_gallery/bev_vs_gt/match_1_round_2_midas_bev_vs_gt.mp4' | url }}" type="video/mp4">
+    <source src="assets/visualization_gallery/bev_vs_gt/match_1_round_2_midas_bev_vs_gt.mp4" type="video/mp4">
   </video>
 
 </div>
