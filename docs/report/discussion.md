@@ -55,11 +55,11 @@ The qualitative example frames below are used to inspect specific occluded cases
 
 <div class="image-carousel">
 
-  <img src="../assets/images/match_1_round_1_frame001839_occluded_worst.png" alt="Occlusion worst, match 1 round 1">
-  <img src="../assets/images/match_1_round_1_frame000630_occluded_low_error_despite_condition.png" alt="Occlusion low error, match 1 round 1">
-  <img src="../assets/images/match_1_round_2_frame000207_occluded_worst.png" alt="Occlusion worst, match 1 round 2">
-  <img src="../assets/images/match_1_round_1_frame002280_occluded_low_error_despite_condition.png" alt="Occlusion low error, match 1 round 1">
-  <img src="../assets/images/match_3_round_2_frame001800_occluded_worst.png" alt="Occlusion worst, match 3 round 2">
+  <img src="/monocular-bev-localization/assets/images/match_1_round_1_frame001839_occluded_worst.png" alt="Occlusion worst, match 1 round 1">
+  <img src="/monocular-bev-localization/assets/images/match_1_round_1_frame000630_occluded_low_error_despite_condition.png" alt="Occlusion low error, match 1 round 1">
+  <img src="/monocular-bev-localization/assets/images/match_1_round_2_frame000207_occluded_worst.png" alt="Occlusion worst, match 1 round 2">
+  <img src="/monocular-bev-localization/assets/images/match_1_round_1_frame002280_occluded_low_error_despite_condition.png" alt="Occlusion low error, match 1 round 1">
+  <img src="/monocular-bev-localization/assets/images/match_3_round_2_frame001800_occluded_worst.png" alt="Occlusion worst, match 3 round 2">
   
 </div>
 
@@ -84,11 +84,11 @@ This suggests both methods share a common vulnerability tied to camera motion, p
 
 <div class="image-carousel">
 
-  <img src="../assets/images/match_1_round_1_frame000257_rapid_camera_worst.png" alt="Rapid camera worst, match 1 round 1">
-  <img src="../assets/images/match_1_round_2_frame000217_rapid_camera_low_error_despite_condition.png" alt="Rapid camera low error, match 1 round 2">
-  <img src="../assets/images/match_2_round_1_frame000756_rapid_camera_worst.png" alt="Rapid camera worst, match 2 round 1">
-  <img src="../assets/images/match_3_round_2_frame000618_rapid_camera_low_error_despite_condition.png" alt="Rapid camera low error, match 3 round 2">
-  <img src="../assets/images/match_3_round_2_frame004170_rapid_camera_worst.png" alt="Rapid camera worst, match 3 round 2">
+  <img src="/monocular-bev-localization/assets/images/match_1_round_1_frame000257_rapid_camera_worst.png" alt="Rapid camera worst, match 1 round 1">
+  <img src="/monocular-bev-localization/assets/images/match_1_round_2_frame000217_rapid_camera_low_error_despite_condition.png" alt="Rapid camera low error, match 1 round 2">
+  <img src="/monocular-bev-localization/assets/images/match_2_round_1_frame000756_rapid_camera_worst.png" alt="Rapid camera worst, match 2 round 1">
+  <img src="/monocular-bev-localization/assets/images/match_3_round_2_frame000618_rapid_camera_low_error_despite_condition.png" alt="Rapid camera low error, match 3 round 2">
+  <img src="/monocular-bev-localization/assets/images/match_3_round_2_frame004170_rapid_camera_worst.png" alt="Rapid camera worst, match 3 round 2">
 
 </div>
 
