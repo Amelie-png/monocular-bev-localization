@@ -49,7 +49,6 @@ class BevEstimator:
     bbox_height = max(1.0, y2 - y1)
 
     return self.depth_scale / bbox_height
-
   def extract_depth(self, depth_map, bbox, depth_min=None, depth_max=None):
     """
     Extract player depth from MiDaS depth map.

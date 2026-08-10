@@ -32,7 +32,6 @@ source venv/bin/activate
 python3 -m scripts.file_name
 
 ### Data parsing
-
 - parse_demo: Parse downloaded .demo files
 - extract_frames: Extract frames and frame information from downloaded .mp4 (video) files
 - sync_data: Sync demo data and video data
@@ -40,7 +39,6 @@ If needed:
 - reset_data: Reset data/processed and outputs/ folder
 
 ### Detection
-
 - tune_detection: Run detection with different configuration of model and parameter
 - Manually inspect tuning_summary.csv and select few configs with best metrics
 - evaluate_detection: Evaluate detection and produce visualization with given config
@@ -49,7 +47,6 @@ If needed:
 - run_detection: Produce detection files for next steps in pipeline
 
 ### Tracking
-
 - tune_tracking: Run tracking with different configuration of parameter
 - Manually inspect tuning_summary.csv and select few configs with best metrics
 - evaluate_tracking: Evaluate tracking and produce visualization with given config

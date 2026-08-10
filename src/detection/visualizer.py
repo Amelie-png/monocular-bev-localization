@@ -1,8 +1,11 @@
 import cv2
+<<<<<<< HEAD
 from pathlib import Path
 from tqdm import tqdm
 
 from src.utils import track_color
+=======
+>>>>>>> origin/develop
 
 class DetectionVisualizer:
   """
@@ -33,11 +36,17 @@ class DetectionVisualizer:
     for det in detections:
       x1, y1, x2, y2 = map(int, det["bbox"])
       confidence = det["confidence"]
+<<<<<<< HEAD
 
       color = track_color(det["track_id"]) if "track_id" in det else self.color
       
       # Draw rectangle
       cv2.rectangle(annotated, (x1, y1), (x2, y2), color, self.thickness)
+=======
+      
+      # Draw rectangle
+      cv2.rectangle(annotated, (x1, y1), (x2, y2), self.color, self.thickness)
+>>>>>>> origin/develop
 
       label = f"{det['class_name']} {confidence:.2f}"
       if "track_id" in det:
@@ -53,7 +62,11 @@ class DetectionVisualizer:
         annotated,
         (x1, y1 - label_size[1] - 10),
         (x1 + label_size[0], y1),
+<<<<<<< HEAD
         color,
+=======
+        self.color,
+>>>>>>> origin/develop
         -1  # Filled
       )
       
@@ -90,10 +103,16 @@ class DetectionVisualizer:
     
     # Create video writer
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+<<<<<<< HEAD
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     out = cv2.VideoWriter(str(output_path), fourcc, fps, (width, height))
     
     for frame_path, detections in tqdm(zip(frame_paths, detections_list), total=len(frame_paths), desc="Rendering detection video", unit="frame", leave=False):
+=======
+    out = cv2.VideoWriter(str(output_path), fourcc, fps, (width, height))
+    
+    for frame_path, detections in zip(frame_paths, detections_list):
+>>>>>>> origin/develop
       # Load frame
       frame = cv2.imread(str(frame_path))
       if frame is None:
