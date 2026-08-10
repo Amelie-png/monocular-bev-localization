@@ -322,13 +322,15 @@ img {
   margin: 2rem auto;
 }
 
-.image-carousel img {
+.image-carousel img,
+.image-carousel video {
   display: none;
   width: 100%;
   border-radius: 12px;
 }
 
-.image-carousel img.active {
+.image-carousel img.active,
+.image-carousel video.active {
   display: block;
 }
 
@@ -389,4 +391,12 @@ img {
 
 .carousel-dot.active {
   background: var(--md-primary-fg-color);
+}
+
+/* caption */
+.carousel-caption {
+  text-align: center;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--md-default-fg-color--light);
 }

@@ -5,13 +5,32 @@ function initCarousels() {
     if (carousel.dataset.ready) return;
     carousel.dataset.ready = "true";
 
-    const images = [...carousel.querySelectorAll("img")];
+    const slides = [...carousel.querySelectorAll("img, video")];
 
-    if (images.length <= 1) return;
+    if (slides.length <= 1) return;
 
     let current = 0;
 
-    images[0].classList.add("active");
+    slides[0].classList.add("active");
+
+    // caption
+
+    const caption = document.createElement("div");
+    caption.className = "carousel-caption";
+
+    carousel.after(caption);
+
+    function getCaption(slide) {
+      if (slide.tagName === "IMG") {
+        return slide.alt || "";
+      }
+
+      if (slide.tagName === "VIDEO") {
+        return slide.dataset.caption || "";
+      }
+
+      return "";
+    }
 
     // buttons
 
@@ -33,7 +52,7 @@ function initCarousels() {
 
     const dotEls = [];
 
-    images.forEach((_, i) => {
+    slides.forEach((_, i) => {
       const dot = document.createElement("div");
       dot.className = "carousel-dot";
 
@@ -52,19 +71,32 @@ function initCarousels() {
     carousel.after(dots);
 
     function update() {
-        images.forEach((img, i) => img.classList.toggle("active", i === current));
-        dotEls.forEach((dot, i) => dot.classList.toggle("active", i === current));
+      slides.forEach((slide, i) => { slide.classList.toggle("active", i === current); });
+
+      dotEls.forEach((dot, i) => { dot.classList.toggle("active", i === current); });
+
+      // Pause videos when switching away from them
+      slides.forEach((slide, i) => {
+        if (slide.tagName === "VIDEO" && i !== current) {
+          slide.pause();
+        }
+      });
+
+      caption.textContent = getCaption(slides[current]);
     }
 
     prev.onclick = () => {
-        current = (current - 1 + images.length) % images.length;
-        update();
+      current = (current - 1 + slides.length) % slides.length;
+      update();
     };
 
     next.onclick = () => {
-      current = (current + 1) % images.length;
+      current = (current + 1) % slides.length;
       update();
     };
+
+    // Initialize caption
+    update();
   });
 }
 

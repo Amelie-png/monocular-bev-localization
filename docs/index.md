@@ -10,8 +10,6 @@ The pipeline combines object detection, multi-object tracking, and two depth est
 
 The project emphasizes modularity and reproducibility, allowing individual pipeline components to be replaced, tuned, and evaluated independently. Intermediate outputs are stored in standardized formats, making the framework suitable for experimentation, benchmarking, and future extensions.
 
-This work was completed as an undergraduate research project exploring the intersection of computer vision, geometric reasoning, and machine learning.
-
 ## Motivation
 Estimating player locations from a single RGB camera remains a difficult problem because depth information is not directly observable. Existing localization approaches often require multiple calibrated cameras, specialized sensors, or direct access to engine data, all of which limit their applicability to real gameplay recordings.
 
@@ -79,8 +77,15 @@ color: red
 E[BEV Estimation]
 ---
 link: report/methodology/#bev-estimation
-tooltip: Transforms camera-relative detections into bird's-eye-view coordinates.
+tooltip: Transforms detections and estimated depth into camera-relative bird's-eye-view coordinates.
 color: purple
+---
+
+T[Trajectory Construction]
+---
+link: report/methodology/#bev-estimation
+tooltip: Aggregates per-frame BEV positions into per-track trajectories over time.
+color: wine
 ---
 
 O[Output]
@@ -104,7 +109,8 @@ B --> C
 B --> D
 C --> E
 D --> E
-E --> O
+E --> T
+T --> O
 O --> F
 ```
 
@@ -114,7 +120,8 @@ The localization pipeline is composed of five independent stages.
 2. **Tracking** associates detections across consecutive frames to construct player trajectories.
 3. **Depth Estimation** estimates camera-relative player distance using either a geometric heuristic or the MiDaS monocular depth model.
 4. **BEV Estimation** projects tracked detections into camera-relative bird's-eye-view coordinates.
-5. **Evaluation** compares predicted positions against synchronized ground truth generated from CS2 demo files.
+5. **Trajectory Construction** builds BEV estimations into tracked player trajectories.
+6. **Evaluation** compares predicted positions against synchronized ground truth generated from CS2 demo files.
 
 Each stage produces standardized outputs that serve as inputs to the following stage, enabling components to be evaluated independently and replaced without modifying the remainder of the pipeline.
 
@@ -125,9 +132,28 @@ The pipeline produces intermediate outputs for every stage in addition to the fi
 
 <div class="image-carousel">
 
-  <img src="/assets/hero.png" alt="Hero">
-  <img src="/assets/favicon.png" alt="Favicon">
-  <img src="/assets/placeholder.png" alt="Placeholder">
+  <video controls data-caption="Detection, match 1 round 2">
+    <source src="/assets/visualization_gallery/detection/match_1_round_2.mp4" type="video/mp4">
+  </video>
+  <video controls data-caption="Tracking, match 1 round 2">
+    <source src="/assets/visualization_gallery/tracking/match_1_round_2.mp4" type="video/mp4">
+  </video>
+  <img src="/assets/visualization_gallery/depths/match_1_round_2.png" alt="Depth map extraction, match 1 round 2">
+  <video controls data-caption="BEV estimation (Heuristic), match 1 round 2">
+    <source src="/assets/visualization_gallery/bev/heuristic/match_1_round_2.mp4" type="video/mp4">
+  </video>
+  <video controls data-caption="BEV estimation (MiDaS), match 1 round 2">
+    <source src="/assets/visualization_gallery/bev/midas/match_1_round_2.mp4" type="video/mp4">
+  </video>
+  <video controls data-caption="Combined, match 1 round 2">
+    <source src="/assets/visualization_gallery/combined/match_1_round_2.mp4" type="video/mp4">
+  </video>
+  <video controls data-caption="BEV vs GT (Heuristic), match 1 round 2">
+    <source src="/assets/visualization_gallery/bev_vs_gt/match_1_round_2_heuristic_bev_vs_gt.mp4" type="video/mp4">
+  </video>
+  <video controls data-caption="BEV vs GT (MiDaS), match 1 round 2">
+    <source src="/assets/visualization_gallery/bev_vs_gt/match_1_round_2_midas_bev_vs_gt.mp4" type="video/mp4">
+  </video>
 
 </div>
 
@@ -140,8 +166,9 @@ Special thanks to my supervisor <a href="https://www.utsc.utoronto.ca/cms/franci
 
 - <a href="https://opencv.org/" target="_blank" rel="noopener">OpenCV</a>
 - <a href="https://www.ultralytics.com/" target="_blank" rel="noopener">Ultralytics YOLO</a>
-- <a href="https://roboflow.com/" target="_blank" rel="noopener">Roboflow ByteTrack</a>
-- <a href="https://pytorch.org/" target="_blank" rel="noopener">PyTorch MiDaS</a>
+- <a href="https://github.com/roboflow/trackers" target="_blank" rel="noopener">Roboflow Trackers</a> (ByteTrack implementation)
+- <a href="https://supervision.roboflow.com/" target="_blank" rel="noopener">Roboflow Supervision</a>
+- <a href="https://huggingface.co/Intel/dpt-hybrid-midas" target="_blank" rel="noopener">Intel DPT-Hybrid (MiDaS) via Hugging Face Transformers</a>
 - <a href="https://github.com/LaihoE/demoparser" target="_blank" rel="noopener">demoparser2</a>
 
 Gameplay data was collected from publicly available professional <a href="https://www.counter-strike.net/cs2" target="_blank" rel="noopener">Counter-Strike 2</a> matches distributed through <a href="https://www.hltv.org/" target="_blank" rel="noopener">HLTV</a>.

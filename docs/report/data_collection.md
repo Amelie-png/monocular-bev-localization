@@ -29,7 +29,7 @@ type: io
 
 B2[*_recording_plan.parquet]
 ---
-tooltip: Determines replay recording plan and camera POV.
+tooltip: Determines replay recording plan and camera POV for ground truth.
 color: purple
 type: io
 ---
@@ -64,7 +64,7 @@ type: io
 
 E[Synchronization]
 ---
-link: ../data_collection/#ground-truth
+link: ../data_collection/#syncing
 tooltip: Sync player positions to frame metadata.
 color: orange
 ---
@@ -76,8 +76,9 @@ tooltip: BEV localization pipeline.
 color: grey
 ---
 
-F1[coordinates.parquet]
+F1[Estimated BEV world coordinates]
 ---
+link: ../data_collection/#calibration
 tooltip: Predicted coordinates from pipeline after transformation and synchronization.
 color: grey
 type: io
@@ -85,6 +86,7 @@ type: io
 
 F2[track_labels.parquet]
 ---
+link: ../data_collection/#matching
 tooltip: Manually labelled track IDs.
 color: grey
 type: io
@@ -105,7 +107,8 @@ D --> D1
 D --> D2
 B1 --> E
 D2 --> E
-B2 --> F2
+B2 --> C
+B2 --> O
 D1 --> F
 F --> F1
 F --> F2
@@ -115,7 +118,7 @@ F1 --> O
 ```
 
 ## Dataset sources
-The dataset needed for this project can be sourced from CS2 pro games available through <a href="https://www.hltv.org/" target="_blank" rel="noopener">HLTV</a>. In professional CS2 tournaments, a series is often played as a best-of-three. Each map within the series produces a separate demo file, resulting in two or three demo files depending on the outcome of the game. Unlike manually annotated datasets, demo files contain precise engine state including player positions, camera orientation, and timing information, allowing ground truth to be generated automatically. This is the most central part of the dataset. For this project specifically, data was collected from the matches played on <a href="https://www.hltv.org/matches/2394174/natus-vincere-vs-vitality-iem-atlanta-2026" target="_blank" rel="noopener">May 15, 2026 Natus Vincere vs. Vitaly game</a>. The gameplay videos are screen recordings of in game demo replay. These RGB videos are inputs into the pipeline and the demo files are used only to generate ground truth for evaluation.
+The dataset needed for this project can be sourced from CS2 pro games available through <a href="https://www.hltv.org/" target="_blank" rel="noopener">HLTV</a>. In professional CS2 tournaments, a series is often played as a best-of-three. Each map within the series produces a separate demo file, resulting in two or three demo files depending on the outcome of the game. Unlike manually annotated datasets, demo files contain precise engine state including player positions, camera orientation, and timing information, allowing ground truth to be generated automatically. This is the most central part of the dataset. For this project specifically, data was collected from the matches played on <a href="https://www.hltv.org/matches/2394174/natus-vincere-vs-vitality-iem-atlanta-2026" target="_blank" rel="noopener">May 15, 2026 Natus Vincere vs. Vitality series</a>. The gameplay videos are screen recordings of in game demo replay. These RGB videos are inputs into the pipeline and the demo files are used only to generate ground truth for evaluation.
 
 Game info:
 
@@ -138,37 +141,39 @@ Once the demo files are downloaded and extracted, they need to be parsed into re
         | tick | int | Demo tick |
         | round_number | int | 0-indexed round number |
         | game_time | float | Time in seconds since match start |
-        | player_name | string | Player identifier |
-        | player_steamid | int | Player identifier |
-        | is_alive | boolean | World X coordinate |
-        | x | float | World X coordinate |
-        | y | float | World Y coordinate |
-        | z | float | World Z coordinate |
-        | pitch | float | Camera pitch (up-down) angle in degrees |
-        | yaw | float | Camera yaw (left-right) angle in degrees |
+        | player_name | string | Player name |
+        | player_steamid | int | Player's Stream ID |
+        | is_alive | boolean | Player status (alive/dead) |
+        | is_freeze_period | boolean | Game status (in freeze time or not) |
+        | x | float | Player's world X coordinate |
+        | y | float | Player's world Y coordinate |
+        | z | float | Player's world Z coordinate |
+        | pitch | float | Player view pitch (up-down) angle in degrees |
+        | yaw | float | Player view yaw (left-right) angle in degrees |
 
     === "Example Data"
 
-        | is_freeze_period | round_number | player_name | player_steamid    | is_alive |                 y |                  x |              pitch |                yaw |                   z |   game_time | tick |
-        | ---------------- | ------------ | ----------- | ----------------- | -------- | ----------------: | -----------------: | -----------------: | -----------------: | ------------------: | ----------: | ---: |
-        | true             | 0            | makazze     | 76561199076189612 | true     | 2433.733642578125 |  334.3687438964844 |                  0 | -130.2813720703125 |   -120.362548828125 |     1949.75 |   26 |
-        | true             | 0            | iM          | 76561198050250233 | true     |   2352.9423828125 |  351.3921203613281 |                  0 |             -157.5 | -120.47491455078125 |     1949.75 |   26 |
-        | true             | 0            | ropz        | 76561197991272318 | true     |    -738.361328125 | -857.5065307617188 |                  0 |  36.99989318847656 |  122.08911895751953 |     1949.75 |   26 |
-        | true             | 0            | ZywOo       | 76561198113666193 | true     |              -808 |              -1141 |                  0 |  112.0001220703125 |  116.68598937988281 |     1949.75 |   26 |
-        | true             | 0            | Aleksib     | 76561198013243326 | true     |     2439.01171875 | 182.24990844726562 |                  0 |  -4.00006103515625 |          -120.96875 |     1949.75 |   26 |
-        | true             | 0            | w0nderful   | 76561199063068840 | true     |  2369.67626953125 | 160.12274169921875 |    0.6427001953125 |    22.686767578125 |   -119.918701171875 |     1949.75 |   26 |
-        | true             | 0            | apEX        | 76561197989744167 | true     | -755.879638671875 | -657.2713623046875 | -0.630340576171875 |   -151.95361328125 |  119.88401794433594 |     1949.75 |   26 |
-        | true             | 0            | flameZ      | 76561197978835160 | true     |              -843 |               -428 |                  0 | 133.50003051757812 |   95.29629516601562 |     1949.75 |   26 |
-        | true             | 0            | b1t         | 76561198246607476 | true     |   2480.5537109375 |  258.1593933105469 | 6.8245697021484375 | -73.36257934570312 |    -121.07666015625 |     1949.75 |   26 |
-        | true             | 0            | mezii       | 76561197973140692 | true     |  -795.64208984375 | -822.3651733398438 |                  0 | 106.99996948242188 |  117.26399993896484 |     1949.75 |   26 |
-        | true             | 0            | makazze     | 76561199076189612 | true     | 2433.733642578125 |  334.3687438964844 |                  0 | -130.3095245361328 |   -120.362548828125 | 1949.765625 |   27 |
+        | is_freeze_period | round_number | player_name | player_steamid | is_alive | y | x | pitch | yaw | z | game_time | tick |
+        |------------------|-------------:|-------------|----------------|----------|---:|---:|------:|----:|---:|----------:|-----:|
+        | true | 0 | iM | 76561198050250233 | true | 2120 | -608 | 6.23028564453125 | -32.011077880859375 | 16.056594848632812 | 1156.84375 | 121 |
+        | true | 0 | apEX | 76561197989744167 | true | -1608 | -192 | -3.73980712890625 | -159.65538024902344 | -11.96875 | 1156.84375 | 121 |
+        | true | 0 | Aleksib | 76561198013243326 | true | 2120 | -360 | 4.2208099365234375 | -135 | 16.05659294128418 | 1156.84375 | 121 |
+        | true | 0 | flameZ | 76561197978835160 | true | -1528 | -328 | 0.5280303955078125 | 153.69598388671875 | -11.96875 | 1156.84375 | 121 |
+        | true | 0 | b1t | 76561198246607476 | true | 2192 | -400 | 3.21246337890625 | -64.82345581054688 | 25.031251907348633 | 1156.84375 | 121 |
+        | true | 0 | mezii | 76561197973140692 | true | -1503.0799560546875 | -154 | -0.3343963623046875 | 28.829498291015625 | -11.96875 | 1156.84375 | 121 |
+        | true | 0 | makazze | 76561199076189612 | true | 2216 | -476 | 5.82928466796875 | -137.67483520507812 | 25.031251907348633 | 1156.84375 | 121 |
+        | true | 0 | w0nderful | 76561199063068840 | true | 2192 | -560 | 6.31439208984375 | -120.8774185180664 | 25.031251907348633 | 1156.84375 | 121 |
+        | true | 0 | ropz | 76561197991272318 | true | -1608 | -304 | 0 | 135 | -11.96875 | 1156.84375 | 121 |
+        | true | 0 | ZywOo | 76561198113666193 | true | -1503.0799560546875 | -234 | 0 | 45 | -11.96875 | 1156.84375 | 121 |
+        | true | 0 | iM | 76561198050250233 | true | 2120 | -608 | 6.23028564453125 | -32.011077880859375 | 16.056594848632812 | 1156.859375 | 122 |
+        | true | 0 | apEX | 76561197989744167 | true | -1608 | -192 | -3.73980712890625 | -159.65538024902344 | -11.96875 | 1156.859375 | 122 |
 
-Demo parsing also produces a recording_plan file which outlines the necessary information to screen record the rounds of a match in game for the rest of data collection. Most importantly, it chooses the player <abbr title="Point-of-View">POV</abbr> and position which will become the camera by choosing the player with the largest survival ratio, minimising camera switches and maximising continuous observations. 
+Demo parsing also produces a recording_plan file which outlines the necessary information to screen record the rounds of a match in game for the rest of data collection. Most importantly, it chooses the player <abbr title="Point-of-View">POV</abbr> and position which will become the camera by choosing the player with the largest survival ratio for that round, minimising camera switches and maximising continuous observations within each round. 
 
 !!! note
     `recording_plan` is required during data collection to guide replay recording. Demo files are retained for producing ground truth for evaluation only.
 
-!!! example "Example: `*_recording_plans.parquet`"
+!!! example "Example: `*_recording_plan.parquet`"
     Generated by the Demo Parsing stage and used for recording gameplay and to obtain player POV.
     === "Schema"
 
@@ -186,15 +191,15 @@ Demo parsing also produces a recording_plan file which outlines the necessary in
     === "Example Data"
 
         | round_number | player_pov | start_tick | end_tick | tick_count | start_game_time | end_game_time | duration_seconds |
-        | -----------: | ---------- | ---------: | -------: | ---------: | --------------: | ------------: | ---------------: |
-        |            0 | ZywOo      |       1275 |     5273 |       3998 |     1969.265625 |   2031.734375 |         62.46875 |
-        |            1 | ZywOo      |       5274 |    10818 |       5544 |         2031.75 |      2118.375 |           86.625 |
-        |            2 | Aleksib    |      10819 |    14605 |       3786 |     2118.390625 |   2177.546875 |         59.15625 |
-        |            3 | Aleksib    |      14606 |    17548 |       2942 |       2177.5625 |    2223.53125 |         45.96875 |
-        |            4 | Aleksib    |      17549 |    20852 |       3303 |     2223.546875 |    2275.15625 |        51.609375 |
-        |            5 | b1t        |      20853 |    29812 |       8959 |     2275.171875 |    2415.15625 |       139.984375 |
-        |            6 | b1t        |      29813 |    42439 |      12626 |     2415.171875 |   2612.453125 |        197.28125 |
-        |            7 | ZywOo      |      42440 |    53840 |      11400 |      2612.46875 |    2790.59375 |          178.125 |
+        |-------------:|------------|-----------:|---------:|-----------:|----------------:|--------------:|-----------------:|
+        | 0 | Aleksib | 1274 | 3913 | 2639 | 1174.859375 | 1216.09375 | 41.234375 |
+        | 1 | Aleksib | 3914 | 12060 | 8146 | 1216.109375 | 1343.390625 | 127.28125 |
+        | 2 | b1t | 12061 | 22387 | 10326 | 1343.40625 | 1504.75 | 161.34375 |
+        | 3 | ZywOo | 22388 | 29696 | 7308 | 1504.765625 | 1618.953125 | 114.1875 |
+        | 4 | ZywOo | 29697 | 35063 | 5366 | 1618.96875 | 1702.8125 | 83.84375 |
+        | 5 | ropz | 35064 | 42413 | 7349 | 1702.828125 | 1817.65625 | 114.828125 |
+        | 6 | makazze | 42414 | 50231 | 7817 | 1817.671875 | 1939.8125 | 122.140625 |
+        | 7 | ZywOo | 50232 | 59191 | 8959 | 1939.828125 | 2079.8125 | 139.984375 |
 
 ## Frame extraction
 The recorded replay videos can be accessed in game with the corresponding demo file (tutorials for replay recording are widely available online). The replay recordings for this project are recorded per round in a match. The start and end of a round, duration of a round, as well as the player POV needed for a complete video capture are outlined in the recording plan for the corresponding match. The recordings are separated into rounds for a controlled camera POV and have a fixed buffer at the beginning of each recording to facilitate video parsing.
@@ -211,80 +216,103 @@ The recorded replay videos can be accessed in game with the corresponding demo f
 Frame extraction is done using the <a href="https://pypi.org/project/opencv-python/" target="_blank" rel="noopener">OpenCV</a> library at the video's native frame rate for better results with multi-object tracking but can be done at specified <abbr title="Frames Per Second">fps</abbr> of choice. The frame extraction process saves each extracted frame as a `.png` file and stores frame metadata in Parquet format. Frame metadata is used further down the pipeline and is important data for evaluation.
 
 !!! example "Example: `*_metadata.parquet`"
-    Generated by the Frame Extraction stage and used for matching frame image to data.
+    Generated by the Frame Extraction stage and used for matching extracted frames with their source video and timestamps.
     === "Schema"
 
         | Column | Type | Description |
         |--------|------|-------------|
-        | frame_id | int | Frame index in extracted frames |
-        | original_frame_id | int | Frame index in original vidoe |
-        | timestamp | double | Timestamp of extracted frame in seconds |
-        | frame_path | string | Path to saved extracted frame `.png` file |
-        | video_name | string | Name of source video where frame was extracted |
+        | frame_id | int | Sequential extracted frame ID |
+        | original_frame_id | int | Original frame ID from the source video |
+        | timestamp | double | Frame timestamp in seconds |
+        | frame_path | string | Path to the extracted frame |
+        | video_name | string | Source video name |
 
     === "Example Data"
 
-        | frame_id | original_frame_id | timestamp (s) | frame_path                                               | video_name      |
-        | -------: | ----------------: | ------------: | -------------------------------------------------------- | --------------- |
-        |        0 |                 0 |  0.0000000000 | data/processed/frames/match_2_round_2/frame_000000.png | match_2_round_2 |
-        |        1 |                 1 |  0.0367695684 | data/processed/frames/match_2_round_2/frame_000001.png | match_2_round_2 |
-        |        2 |                 2 |  0.0735391368 | data/processed/frames/match_2_round_2/frame_000002.png | match_2_round_2 |
-        |        3 |                 4 |  0.1470782737 | data/processed/frames/match_2_round_2/frame_000003.png | match_2_round_2 |
-        |        4 |                 5 |  0.1838478421 | data/processed/frames/match_2_round_2/frame_000004.png | match_2_round_2 |
+        | frame_id | original_frame_id | timestamp | frame_path | video_name |
+        |---------:|------------------:|----------:|------------|------------|
+        | 1 | 0 | 0 | data/processed/frames/match_2_round_2/frame_000000.png | match_2_round_2 |
+        | 2 | 1 | 0.03676956841950214 | data/processed/frames/match_2_round_2/frame_000001.png | match_2_round_2 |
+        | 3 | 2 | 0.07353913683900427 | data/processed/frames/match_2_round_2/frame_000002.png | match_2_round_2 |
+        | 4 | 3 | 0.14707827367800855 | data/processed/frames/match_2_round_2/frame_000003.png | match_2_round_2 |
+        | 5 | 4 | 0.18384784209751068 | data/processed/frames/match_2_round_2/frame_000004.png | match_2_round_2 |
 
 Frame extraction supports optional image preprocessing operations, such as cropping to remove <abbr title="User Interface">UI</abbr> elements or other irrelevant regions. All experiments reported in this work are conducted using the **original** extracted frames.
 
+Optional cropping (to remove <abbr title="User Interface">UI</abbr> elements or other irrelevant regions that might be misdetected as a person) is available as a Detection-stage preprocessing option (`crop_bottom_ratio`), applied after frame extraction (despite being a frame-wise preprocessing). All experiments reported in this work used `crop_bottom_ratio = 0.0` (no cropping).
+
 ## Ground truth
-To produce the ground truth needed for evaluation of the pipeline, the first step is to sync the demo data to the recorded videos as they are measured in different units. The `RoundSynchronizer` module uses linear interpolation to match a frame from a video to a tick in a demo file, knowing the start and end timestamp of a video and the start and end tick of a round and while assuming constant mapping between the two. The sync data is stored in `.parquet` files.
+### Syncing
+To produce the ground truth needed for evaluation of the pipeline, the first step is to sync the demo data to the recorded videos as they are measured in different units. The `RoundSynchronizer` module uses linear interpolation to match a frame from a video to a tick in a demo file, knowing the start and end timestamp of a video and the start and end tick of a round while assuming constant mapping between the two. The sync data is stored in `.parquet` files.
 
 !!! example "Example: `*_sync.parquet`"
-    Note
+    Generated by the Synchronization stage and used to align video frames with demo ticks and camera information.
     === "Schema"
 
         | Column | Type | Description |
         |--------|------|-------------|
-        | tick | int | Demo tick |
-        | player_name | string | Player identifier |
-        | pos_x | float | World X coordinate |
+        | frame_id | int | Sequential frame ID |
+        | original_frame_id | int | Original frame ID from the source video |
+        | timestamp | double | Frame timestamp in seconds |
+        | frame_path | string | Path to the extracted frame |
+        | video_name | string | Source video name |
+        | tick | int | Demo tick associated with the frame |
+        | matched_tick | int | Synchronized demo tick |
+        | cam_x | float | Camera X position |
+        | cam_y | float | Camera Y position |
+        | yaw_deg | float | Camera yaw angle in degrees |
+        | pitch_deg | float | Camera pitch angle in degrees |
 
     === "Example Data"
 
-        | Tick | Player | X | Y | Z |
-        |------:|--------|--:|--:|--:|
-        | 5301 | Player A | ... | ... | ... |
+        | frame_id | original_frame_id | timestamp | frame_path | video_name | tick | matched_tick | cam_x | cam_y | yaw_deg | pitch_deg |
+        |---------:|------------------:|----------:|------------|------------|-----:|-------------:|------:|------:|--------:|----------:|
+        | 201 | 200 | 7.3906832523199295 | data/processed/frames/match_2_round_2/frame_000200.png | match_2_round_2 | 12338 | 12338 | 134.19778442382812 | 2541.55029296875 | 175.5213623046875 | 34.739105224609375 |
+        | 202 | 201 | 7.427452820429432 | data/processed/frames/match_2_round_2/frame_000201.png | match_2_round_2 | 12341 | 12341 | 122.71061706542969 | 2543.864501953125 | 177.40859985351562 | 37.080230712890625 |
+        | 203 | 202 | 7.464222389158933 | data/processed/frames/match_2_round_2/frame_000202.png | match_2_round_2 | 12343 | 12343 | 115.00898742675781 | 2545.17431640625 | 177.46319580078125 | 37.15301513671875 |
+        | 204 | 203 | 7.500991957578435 | data/processed/frames/match_2_round_2/frame_000203.png | match_2_round_2 | 12345 | 12345 | 107.27975463867188 | 2546.310302734375 | 179.27798461914062 | 39.24041748046875 |
+        | 205 | 204 | 7.537761525997937 | data/processed/frames/match_2_round_2/frame_000204.png | match_2_round_2 | 12348 | 12348 | 95.64356231689453 | 2547.692626953125 | -179.43316650390625 | 39.7667236328125 |
+        | 206 | 205 | 7.5745310944174395 | data/processed/frames/match_2_round_2/frame_000205.png | match_2_round_2 | 12350 | 12350 | 87.86415100097656 | 2548.410400390625 | -178.4351348876953 | 39.87556457519531 |
+        | 207 | 206 | 7.611300662836942 | data/processed/frames/match_2_round_2/frame_000206.png | match_2_round_2 | 12352 | 12352 | 80.07196044921875 | 2548.97216796875 | -177.74539184570312 | 39.96620178222656 |
+        | 208 | 207 | 7.648070231256444 | data/processed/frames/match_2_round_2/frame_000207.png | match_2_round_2 | 12355 | 12355 | 68.36801147460938 | 2549.552490234375 | -177.2918701171875 | 40.002593994140625 |
+        | 209 | 208 | 7.684839799675946 | data/processed/frames/match_2_round_2/frame_000208.png | match_2_round_2 | 12357 | 12357 | 60.559104919433594 | 2549.787353515625 | -177.01962280273438 | 40.002593994140625 |
+        | 210 | 209 | 7.721609368095448 | data/processed/frames/match_2_round_2/frame_000209.png | match_2_round_2 | 12359 | 12359 | 52.74795150756836 | 2549.91748046875 | -176.7473602294922 | 39.947998046875 |
+        | 211 | 210 | 7.7583789365149505 | data/processed/frames/match_2_round_2/frame_000210.png | match_2_round_2 | 12362 | 12362 | 41.02954864501953 | 2549.941650390625 | -176.36660766601562 | 39.80278015136719 |
 
-Now the frames are matched to a tick in the demo file. However, the <abbr title="Bird’s-Eye View">BEV</abbr> estimations produced by the pipeline are relative to the camera and not in coordinate format like the X, Y, Z in demo files. To convert camera-relative predictions, the camera position (same as position of player_pov) and the camera rotation will be needed, both obtained from the syncing process. Rotation convention and scale factor for the conversion are calibrated independently for each round because these values differ between rounds.
+### Calibration
+Now the frames are matched to a tick in the demo file. However, the <abbr title="Bird’s-Eye View">BEV</abbr> estimations produced by the pipeline are relative to the camera and not in coordinate format like the X, Y, Z in demo files. To convert camera-relative predictions, the camera position (`cam_x`, `cam_y` which are the POV player's own position at the matched tick) and camera rotation (yaw_deg) will be needed, both obtained from the syncing process. 
 
-!!! example "Example: `coordinates.parquet`"
-    Note
+The rotation convention is calibrated once, pooled across all calibration videos, since it reflects a fixed physical property of the camera setup rather than something expected to vary round to round. The scale factor, however, is refit independently for each round, since empirical testing showed BEV output scale varies meaningfully between rounds even under a fixed convention.
+
+The predicted points are transformed into world coordinates as part of building the evaluation dataset (see Matching, below), and are stored alongside the corresponding ground-truth positions and per-frame Euclidean error in the evaluation output.
+
+### Matching
+In order to match a BEV estimation world coordinate to ground truth, two distinct matching steps are used for two different purposes:
+
+A **calibration set** is built by directly joining `track_id` to `player_name` using manual labels marked unambiguous ("valid"), and is only used to solve for the unknown rotation convention and per-round scale factor described above. This step requires trusted identity, since it is fitting the transform itself. 
+
+Separately, the **evaluation set** used for all reported accuracy metrics is built using `match_frame`'s Hungarian assignment to assign track IDs to players such that it minimizes total distance across all pairs of predicted points and ground truth points simultaneously and not just greedily picking the nearest for each point. Hungarian matching is applied across both the tracked and untracked conditions, regardless of label status (with `invalid_pov` and `dead_body` labeled tracks excluded beforehand). This avoids relying on manual labels for the accuracy numbers, and is what allows the same evaluation approach to extend cleanly to the untracked experiment, where no persistent identity exists to label at all.
+
+Each match produces a `(predicted position, ground-truth position, distance)` triple per frame. This distance is the Euclidean positional error reported in [Results](results.md), and the underlying position pairs feed directly into the [relative spatial accuracy metric](methodology.md#evaluation-metrics).
+
+The manual labels are parsed and stored as a Parquet file.
+
+!!! example "Example: `*_track_label.parquet`"
+    Generated from parsing manual labels and used to build the calibration set.
     === "Schema"
 
         | Column | Type | Description |
         |--------|------|-------------|
-        | tick | int | Demo tick |
-        | player_name | string | Player identifier |
-        | pos_x | float | World X coordinate |
+        | video_name | string | Source video name |
+        | track_id | int | Tracking system ID |
+        | status | string | Track ID label validity status |
+        | player_name | string | Matched player name |
 
     === "Example Data"
 
-        | Tick | Player | X | Y | Z |
-        |------:|--------|--:|--:|--:|
-        | 5301 | Player A | ... | ... | ... |
-
-To match the ground truth to the actual tracked players for evaluation, this project uses 2 possible approaches. For track IDs with clear manual labels to a certain player, simply join the track ID to the player name to the corresponding ground truth. Otherwise for pseudo-tracks (fake tracks for no track evaluation of the pipeline) and ambiguous labels where a track ID is assigned to different players at different instances in the round or when manual labels are not available, `match_frame` uses the Hungarian algorithm to assign track IDs to players such that it minimizes total distance across all pairs of predicted points and ground truth points simultaneously and not just greedily picking the nearest for each point. The predicted points and the corresponding player data are stored in `.parquet` files for evaluation.
-
-!!! example "Example: `track_label.parquet`"
-    Note
-    === "Schema"
-
-        | Column | Type | Description |
-        |--------|------|-------------|
-        | tick | int | Demo tick |
-        | player_name | string | Player identifier |
-        | pos_x | float | World X coordinate |
-
-    === "Example Data"
-
-        | Tick | Player | X | Y | Z |
-        |------:|--------|--:|--:|--:|
-        | 5301 | Player A | ... | ... | ... |
+        | video_name | track_id | status | player_name |
+        |------------|---------:|--------|-------------|
+        | match_2_round_2 | 2 | invalid_pov | |
+        | match_2_round_2 | 3 | valid | wOnderful |
+        | match_2_round_2 | 4 | valid | Aleksib |
+        | match_2_round_2 | 5 | ambiguous | |
