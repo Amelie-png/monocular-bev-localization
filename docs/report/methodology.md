@@ -298,12 +298,12 @@ Note the distinction between two different depth values in this pipeline: the fu
 
 <div class="image-carousel">
 
-  <img src="../../assets/images/match_1_round_2_depth.png" alt="Depth map, match 1 round 2">
-  <img src="../../assets/images/match_1_round_10_depth.png" alt="Depth map, match 1 round 10">
-  <img src="../../assets/images/match_2_round_1_depth.png" alt="Depth map, match 2 round 1">
-  <img src="../../assets/images/match_2_round_2_depth.png" alt="Depth map, match 2 round 2">
-  <img src="../../assets/images/match_2_round_10_depth.png" alt="Depth map, match 2 round 10">
-  <img src="../../assets/images/match_3_round_10_depth.png" alt="Depth map, match 3 round 10">
+  <img src="/monocular-bev-localization/assets/images/match_1_round_2_depth.png" alt="Depth map, match 1 round 2">
+  <img src="/monocular-bev-localization/assets/images/match_1_round_10_depth.png" alt="Depth map, match 1 round 10">
+  <img src="/monocular-bev-localization/assets/images/match_2_round_1_depth.png" alt="Depth map, match 2 round 1">
+  <img src="/monocular-bev-localization/assets/images/match_2_round_2_depth.png" alt="Depth map, match 2 round 2">
+  <img src="/monocular-bev-localization/assets/images/match_2_round_10_depth.png" alt="Depth map, match 2 round 10">
+  <img src="/monocular-bev-localization/assets/images/match_3_round_10_depth.png" alt="Depth map, match 3 round 10">
 
 </div>
 
